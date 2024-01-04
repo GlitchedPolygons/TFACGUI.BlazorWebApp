@@ -1,0 +1,16 @@
+{
+  "name": "TFACGUI",
+  "short_name": "TFACGUI",
+  "description": "Two-factor authentication token generator GUI. Simple and painless.",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "/",
+  "display": "fullscreen",
+  "theme_color": "#4527A0",
+  "background_color": "#4527A0"
+}
