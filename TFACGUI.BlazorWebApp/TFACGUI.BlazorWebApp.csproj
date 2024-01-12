@@ -14,6 +14,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Otp.NET" Version="1.3.0" />
         <PackageReference Include="GlitchedPolygons.ExtensionMethods" Version="1.3.0" />
         <PackageReference Include="GlitchedPolygons.Utilities.RandomStringGenerator" Version="1.0.0" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.0"/>
