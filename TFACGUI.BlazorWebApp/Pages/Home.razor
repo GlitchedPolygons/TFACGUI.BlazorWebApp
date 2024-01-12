@@ -5,19 +5,31 @@
 
 <PageTitle>TFACGUI</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>
+    TFACGUI
+</h1>
 
-Welcome to your new app.
+<div class="btn-flex">
 
-<button class="btn btn-primary"
-        @onclick="OnClickScanTotpSecret">
-    Scan QR
-</button>
+    <button class="btn btn-primary stretch-when-narrow"
+            @onclick="OnClickScanTotpSecret">
+        Scan QR
+    </button>
+
+    <button class="btn btn-primary stretch-when-narrow"
+            @onclick="OnClickEnterManually">
+        Enter manually
+    </button>
+
+</div>
+
 
 <br />
 <br />
 
-<QRCodeScanner />
+<QRCodeScanner LoadingMessage=""
+               OutputMessage="No QR code detected"
+               Width="512" />
 
 @code {
 
@@ -36,16 +48,24 @@ Welcome to your new app.
         {
             return;
         }
-        
+
         await qrCodeScannerJsInterop.Init(OnQrCodeScan);
     }
 
-    private void OnQrCodeScan(string code)
+    private void OnQrCodeScan(string qrCodeContent)
     {
 #if DEBUG
-        Console.WriteLine($"Scanned QR-Code: \"{code}\"");
+        Console.WriteLine($"Scanned QR-Code: \"{qrCodeContent}\"");
 #endif
 
         // TODO: show dialog here and handle otp auth url!
+
+        qrCodeScannerJsInterop?.StopRecording().GetAwaiter().GetResult();
     }
+
+    private void OnClickEnterManually()
+    {
+        // TODO: impl.
+    }
+
 }
