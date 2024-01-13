@@ -4,13 +4,25 @@ public static class Constants
 {
     public static class ElementIds
     {
-        public const string USER_DATA = "userdata";
+        public const string USER_DATA = "UserData";
     }
 
     public static class InteropFunctionNames
     {
+        public const string ALERT_DIALOG = "alert";
+        public const string CONFIRM_DIALOG = "confirm";
         public const string GET_INPUT_VALUE = "GetInputValue";
         public const string SET_INPUT_VALUE = "SetInputValue";
+        public const string GET_LOCALSTORAGE_VALUE = "localStorage.getItem";
+        public const string SET_LOCALSTORAGE_VALUE = "localStorage.setItem";
+    }
+    
+    public static class AesGcm
+    {
+        public const int NONCE_SIZE_BYTES = 12;
+        public const int MAC_SIZE_BYTES = 16;
+        public const int TAG_SIZE_BYTES = 16;
+        public const int KEY_SIZE_BYTES = 32;
     }
     
     public static readonly char[] KEYGEN_LEGAL_CHARS =

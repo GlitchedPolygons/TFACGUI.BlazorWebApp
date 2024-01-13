@@ -1,9 +1,14 @@
 ﻿@page "/"
 
 @inject IJSRuntime JS
-@using ReactorBlazorQRCodeScanner
+@inject IUserDataService UserDataService
 
-<PageTitle>TFACGUI</PageTitle>
+@using ReactorBlazorQRCodeScanner
+@using TFACGUI.BlazorWebApp.Services
+
+<PageTitle>
+    TFACGUI
+</PageTitle>
 
 <h1>
     TFACGUI
@@ -22,7 +27,6 @@
     </button>
 
 </div>
-
 
 <br />
 <br />

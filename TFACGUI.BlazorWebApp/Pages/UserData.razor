@@ -1,13 +1,56 @@
 ﻿@page "/userdata"
 
 @inject IJSRuntime JS
+@inject IUserDataService UserDataService
+@inject NavigationManager Navigation
+
+@using TFACGUI.BlazorWebApp.Services
 @using GlitchedPolygons.Utilities.RandomStringGenerator
+@using Org.BouncyCastle.Crypto.Engines
+@using Org.BouncyCastle.Crypto.Modes
+@using Org.BouncyCastle.Crypto.Parameters
+@using GlitchedPolygons.ExtensionMethods
+@using System.Security.Cryptography
+@using System.Text
+@using System.Text.Json
+@using System.Text.RegularExpressions
 
 <PageTitle>TFACGUI Import / export data</PageTitle>
 
 <h1>Import / export</h1>
 
+<div class="btn-flex">
+
+    <button class="btn btn-primary stretch-when-narrow"
+            @onclick="OnClickExport">
+        Export
+    </button>
+
+    <button class="btn btn-primary stretch-when-narrow"
+            @onclick="OnClickImport">
+        Import
+    </button>
+
+    <button class="btn btn-danger stretch-when-narrow"
+            @onclick="OnClickDelete">
+        Delete
+    </button>
+
+
+</div>
+
 @code {
+
+    private string aesGcmKey = string.Empty;
+    private string encryptionCiphertext = string.Empty;
+    private string decryptionCiphertext = string.Empty;
+
+    private readonly Regex hasNumberRegex = new (@"[0-9]+");
+    private readonly Regex hasUpperCaseRegex = new (@"[A-Z]+");
+    private readonly Regex hasLowerCaseRegex = new (@"[a-z]+");
+    private readonly Regex hasSpecialCharactersRegex = new (@"[!@#$%^&*()_+=\[{\]};:<>|./?,-]");
+    
+    private readonly byte[] nonceBytes = new byte[Constants.AesGcm.NONCE_SIZE_BYTES];
 
     private string GenerateRandomEncryptionKey()
     {
@@ -24,6 +67,173 @@
             (
                 ['-', '_', '@', ',', '.', '+', '*', '#']
             );
+    }
+
+    private bool CheckEncryptionKeyStrength(string key)
+    {
+        return
+            key.Length > 6 &&
+            hasNumberRegex.IsMatch(key) &&
+            hasUpperCaseRegex.IsMatch(key) &&
+            hasLowerCaseRegex.IsMatch(key) &&
+            hasSpecialCharactersRegex.IsMatch(key);
+    }
+
+    private async Task OnClickExport()
+    {
+        string userDataPlaintext = await UserDataService.GetUserDataPlaintext();
+
+        if (userDataPlaintext.NullOrEmpty())
+        {
+            return;
+        }
+
+        try
+        {
+            Random.Shared.NextBytes(nonceBytes);
+
+            AesEngine aesEngine = new();
+            GcmBlockCipher aesGcm = new(aesEngine);
+            AeadParameters parameters = new(new KeyParameter(SHA256.HashData(aesGcmKey.UTF8GetBytes())), 8 * Constants.AesGcm.MAC_SIZE_BYTES, nonceBytes, null);
+
+            aesGcm.Init(true, parameters);
+
+            byte[] plaintextBytes = userDataPlaintext.UTF8GetBytes();
+            byte[] ciphertextBytes = new byte[aesGcm.GetOutputSize(plaintextBytes.Length)];
+
+            int n = aesGcm.ProcessBytes(plaintextBytes, ciphertextBytes);
+
+            aesGcm.DoFinal(ciphertextBytes[n..]);
+
+            int offset = 0;
+
+            byte[] resultBytes = new byte[Constants.AesGcm.NONCE_SIZE_BYTES + ciphertextBytes.Length];
+
+            for (int i = 0; i < nonceBytes.Length; ++i)
+            {
+                resultBytes[i + offset] = nonceBytes[i];
+            }
+
+            offset += Constants.AesGcm.NONCE_SIZE_BYTES;
+
+            for (int i = 0; i < ciphertextBytes.Length; ++i)
+            {
+                resultBytes[i + offset] = ciphertextBytes[i];
+            }
+
+            encryptionCiphertext = Convert.ToHexString(resultBytes);
+
+            // TODO: open dialog here that shows the ciphertext and allows user to copy to clipboard
+
+            CryptographicOperations.ZeroMemory(resultBytes);
+            CryptographicOperations.ZeroMemory(plaintextBytes);
+            CryptographicOperations.ZeroMemory(ciphertextBytes);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Encryption failed. Thrown exception: {e.ToString()}");
+            
+            await JS.InvokeVoidAsync(Constants.InteropFunctionNames.ALERT_DIALOG, "ERROR: Encryption failed.");
+        }
+        finally
+        {
+            // Cleanup.
+            aesGcmKey = string.Empty;
+            Random.Shared.NextBytes(nonceBytes);
+        }
+    }
+
+    private async Task OnClickImport()
+    {
+        string decryptionPlaintext = string.Empty;
+
+        if (decryptionCiphertext.NullOrEmpty())
+        {
+            return;
+        }
+
+        if (decryptionCiphertext.Length % 2 != 0)
+        {
+            await JS.InvokeVoidAsync(Constants.InteropFunctionNames.ALERT_DIALOG, "ERROR: Decryption failed. Invalid ciphertext! Hex-encoded strings are always divisible by two in size. Did you maybe not paste in the entire ciphertext? Sometimes it's easy to miss just one character at the start or end of the ciphertext...");
+            return;
+        }
+        
+        try
+        {
+            byte[] encryptionCiphertextBytes = Convert.FromHexString(decryptionCiphertext);
+
+            for (int i = 0; i < nonceBytes.Length; ++i)
+            {
+                nonceBytes[i] = encryptionCiphertextBytes[i];
+            }
+
+            byte[] ciphertextBytes = encryptionCiphertextBytes[Constants.AesGcm.NONCE_SIZE_BYTES..];
+
+            AesEngine aesEngine = new();
+            GcmBlockCipher cipher = new(aesEngine);
+            AeadParameters parameters = new AeadParameters(new KeyParameter(SHA256.HashData(aesGcmKey.UTF8GetBytes())), 8 * Constants.AesGcm.MAC_SIZE_BYTES, nonceBytes, null);
+
+            cipher.Init(false, parameters);
+
+            byte[] plaintextBytes = new byte[cipher.GetOutputSize(ciphertextBytes.Length)];
+
+            int n = cipher.ProcessBytes(ciphertextBytes, plaintextBytes);
+
+            cipher.DoFinal(plaintextBytes[n..]);
+
+            decryptionPlaintext = Encoding.UTF8.GetString(plaintextBytes);
+
+            Models.UserData? userData = JsonSerializer.Deserialize<Models.UserData>(decryptionPlaintext);
+
+            if (userData is null)
+            {
+                await JS.InvokeVoidAsync(Constants.InteropFunctionNames.ALERT_DIALOG, "ERROR: Invalid data format.");
+            }
+            else
+            {
+                decryptionPlaintext = string.Empty;
+            }
+
+            // Cleanup.
+            CryptographicOperations.ZeroMemory(encryptionCiphertextBytes);
+            CryptographicOperations.ZeroMemory(ciphertextBytes);
+            CryptographicOperations.ZeroMemory(plaintextBytes);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"ERROR: Decryption failed. Thrown exception: {e.ToString()}");
+            
+            await JS.InvokeVoidAsync(Constants.InteropFunctionNames.ALERT_DIALOG, "ERROR: Decryption failed. Please double-check that the decryption key is correct and the ciphertext was pasted in entirely!");
+        }
+        finally
+        {
+            // Cleanup.
+            aesGcmKey = string.Empty;
+            Random.Shared.NextBytes(nonceBytes);
+        }
+
+        if (decryptionPlaintext.NullOrEmpty())
+        {
+            return;
+        }
+        
+        await UserDataService.SetUserDataPlaintext(decryptionPlaintext);
+
+        Navigation.NavigateTo("/", true);
+    }
+
+    private async Task OnClickDelete()
+    {
+        bool confirmed = await JS.InvokeAsync<bool>(Constants.InteropFunctionNames.CONFIRM_DIALOG, "Are you sure? Confirming this will entirely wipe all of your TFACGUI related data from this browser! Consider exporting a backup with the \"Export\" button first, before proceeding with deletion.");
+
+        if (!confirmed)
+        {
+            return;
+        }
+
+        await UserDataService.SetUserDataPlaintext(string.Empty);
+
+        Navigation.NavigateTo("/", true);
     }
 
 }
