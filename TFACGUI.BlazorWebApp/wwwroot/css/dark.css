@@ -412,3 +412,27 @@ code {
 .page-item.disabled .page-link {
     background-color: var(--bs-pagination-bg);
 }
+
+.btn-close {
+    color: aliceblue;
+    filter: invert(100%);
+}
+
+.modal-content,
+.modal-header,
+.modal-footer,
+.modal-body {
+    background-color: #2a2a2a;
+}
+
+.modal-content {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.modal-header {
+    border-bottom: 1px solid #dee2e659;
+}
+
+.modal-footer {
+    border-top: 1px solid #dee2e659;
+}

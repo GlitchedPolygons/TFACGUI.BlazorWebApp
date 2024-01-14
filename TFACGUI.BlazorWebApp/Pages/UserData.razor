@@ -17,17 +17,41 @@
 
 <PageTitle>TFACGUI Import / export data</PageTitle>
 
-<h1>Import / export</h1>
+<h1>
+    Import / export
+</h1>
+
+<p>
+    It is important to backup your 2FA secrets periodically and store them somewhere safe.
+</p>
+
+<p>
+    Exporting a backup is easy: just click on the <code>Export</code> button below,
+    enter a secure password and copy the encrypted backup string into a secure destination (maybe a password manager?).
+</p>
+
+<p>
+    Conversely, importing a backup requires you to paste the backup string into the <code>Import</code> dialog box (together with its corresponding decryption key).
+</p>
+
+<p>
+    Please note that <strong>importing a backup will overwrite the current TFACGUI user data</strong> without any possibility of undoing,
+    so make sure that you export a backup of your current data before importing anything, just to be safe and prevent any potential data loss!
+</p>
 
 <div class="btn-flex">
 
     <button class="btn btn-primary stretch-when-narrow"
-            @onclick="OnClickExport">
+            data-bs-toggle="modal"
+            data-bs-target="#exportModal"
+            @onclick="ClearEncryptionKeyInputFields">
         Export
     </button>
 
     <button class="btn btn-primary stretch-when-narrow"
-            @onclick="OnClickImport">
+            data-bs-toggle="modal"
+            data-bs-target="#importModal"
+            @onclick="ClearDecryptionKeyInputFields">
         Import
     </button>
 
@@ -36,20 +60,224 @@
         Delete
     </button>
 
-
 </div>
+
+<!-- Export modal -->
+<div class="modal fade"
+     id="exportModal"
+     tabindex="-1"
+     aria-labelledby="exportModalLabel"
+     aria-hidden="true">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title"
+                    id="exportModalLabel">
+                    Export TFACGUI user data
+                </h5>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close">
+                </button>
+            </div>
+
+            <div class="modal-body">
+
+                <p>
+                    Export a backup of your 2FA secrets now and protect it with a password.
+                </p>
+
+                <p>
+                    Please make sure to absolutely not lose this password, or you will not be able to decrypt &amp; re-import your backup at a later point!
+                </p>
+
+                <p>
+                    <strong>NOTE:</strong> Clicking on <code>Generate password</code> will copy the generated password to your system's clipboard!
+                </p>
+
+                <div class="form-group">
+
+                    <label for="exportPassword"
+                           class="form-label mt-2">
+                        Password
+                    </label>
+
+                    <input type="password"
+                           class="form-control"
+                           id="exportPassword"
+                           placeholder="Password"
+                           @oninput="CheckExportReady"
+                           onClick="this.select();"
+                           autocomplete="off">
+                </div>
+
+                <div class="form-group">
+
+                    <label for="exportPasswordConfirmation"
+                           class="form-label mt-2">
+                        Confirm password
+                    </label>
+
+                    <input type="password"
+                           class="form-control"
+                           id="exportPasswordConfirmation"
+                           placeholder="Password again"
+                           @oninput="CheckExportReady"
+                           onClick="this.select();"
+                           autocomplete="off">
+                </div>
+
+                <div class="form-group">
+
+                    <label for="encryptionCiphertext"
+                           class="form-label mt-2">
+                        Exported backup
+                    </label>
+
+                    <textarea class="form-control" id="encryptionCiphertext" rows="4" onClick="this.select();" readonly></textarea>
+                </div>
+
+                <button type="button"
+                        class="btn btn-outline-primary mt-2"
+                        @onclick="OnClickCopyEncryptionCiphertext">
+                    Copy
+                </button>
+
+                <br />
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button type="button"
+                        class="btn btn-secondary stretch-when-narrow"
+                        data-bs-dismiss="modal">
+                    Close
+                </button>
+
+                <button type="button"
+                        class="btn btn-success stretch-when-narrow"
+                        @onclick="OnClickGenerateRandomEncryptionKey">
+                    Generate password
+                </button>
+
+                <button type="button"
+                        class="btn btn-primary stretch-when-narrow"
+                        disabled="@(!exportReady)"
+                        @onclick="OnClickExport">
+                    Export
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Import modal -->
+<div class="modal fade"
+     id="importModal"
+     tabindex="-1"
+     aria-labelledby="importModalLabel"
+     aria-hidden="true">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title"
+                    id="importModalLabel">
+                    Import TFACGUI user data
+                </h5>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close">
+                </button>
+            </div>
+
+            <div class="modal-body">
+
+                <p>
+                    Import a backup of your 2FA secrets now.
+                </p>
+
+                <p>
+                    To import any TFACGUI user data backup, you need its corresponding password. No password, no import!
+                </p>
+
+                <p>
+                    Please note that <strong>importing a backup will overwrite the current TFACGUI user data</strong> without any possibility of undoing,
+                    so make sure that you export a backup of your current data before importing anything, just to be safe and prevent any potential data loss!
+                </p>
+
+                <div class="form-group">
+
+                    <label for="importPassword"
+                           class="form-label mt-2">
+                        Password
+                    </label>
+
+                    <input type="password"
+                           class="form-control"
+                           id="importPassword"
+                           placeholder="Password"
+                           @oninput="CheckImportReady"
+                           onClick="this.select();"
+                           autocomplete="off">
+                </div>
+
+                <div class="form-group">
+
+                    <label for="decryptionCiphertext"
+                           class="form-label mt-2">
+                        Backup
+                    </label>
+
+                    <textarea class="form-control" id="decryptionCiphertext" rows="4" onClick="this.select();" @oninput="CheckImportReady"></textarea>
+                </div>
+
+                <br />
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button type="button"
+                        class="btn btn-secondary stretch-when-narrow"
+                        data-bs-dismiss="modal">
+                    Close
+                </button>
+
+                <button type="button"
+                        class="btn btn-primary stretch-when-narrow"
+                        disabled="@(!importReady)"
+                        @onclick="OnClickImport">
+                    Import
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 @code {
 
-    private string aesGcmKey = string.Empty;
-    private string encryptionCiphertext = string.Empty;
-    private string decryptionCiphertext = string.Empty;
+    private bool exportReady = false;
+    private bool importReady = false;
 
-    private readonly Regex hasNumberRegex = new (@"[0-9]+");
-    private readonly Regex hasUpperCaseRegex = new (@"[A-Z]+");
-    private readonly Regex hasLowerCaseRegex = new (@"[a-z]+");
-    private readonly Regex hasSpecialCharactersRegex = new (@"[!@#$%^&*()_+=\[{\]};:<>|./?,-]");
-    
+    private readonly Regex hasNumberRegex = new(@"[0-9]+");
+    private readonly Regex hasUpperCaseRegex = new(@"[A-Z]+");
+    private readonly Regex hasLowerCaseRegex = new(@"[a-z]+");
+    private readonly Regex hasSpecialCharactersRegex = new(@"[!@#$%^&*()_+=\[{\]};:<>|./?,-]");
+
     private readonly byte[] nonceBytes = new byte[Constants.AesGcm.NONCE_SIZE_BYTES];
 
     private string GenerateRandomEncryptionKey()
@@ -79,12 +307,101 @@
             hasSpecialCharactersRegex.IsMatch(key);
     }
 
+    private async Task CheckExportReady()
+    {
+        string exportPw = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_INPUT_VALUE, Constants.ElementIds.EXPORT_PW, string.Empty);
+
+        exportReady = exportPw.NotNullNotEmpty() && exportPw == await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_INPUT_VALUE, Constants.ElementIds.EXPORT_PW_CONFIRMATION, string.Empty);
+    }
+
+    private async Task CheckImportReady()
+    {
+        importReady =
+            (
+                await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_INPUT_VALUE, Constants.ElementIds.BACKUP_DECRYPTION_CIPHERTEXT, string.Empty)
+            )
+            .NotNullNotEmpty()
+            &&
+            (
+                await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_INPUT_VALUE, Constants.ElementIds.IMPORT_PW, string.Empty)
+            )
+            .NotNullNotEmpty();
+    }
+
+    private async Task ClearEncryptionKeyInputFields()
+    {
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.EXPORT_PW, string.Empty);
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.EXPORT_PW_CONFIRMATION, string.Empty);
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.BACKUP_ENCRYPTION_CIPHERTEXT, string.Empty);
+
+        await CheckExportReady();
+    }
+
+    private async Task ClearDecryptionKeyInputFields()
+    {
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.IMPORT_PW, string.Empty);
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.BACKUP_DECRYPTION_CIPHERTEXT, string.Empty);
+
+        await CheckImportReady();
+    }
+
+    private async Task OnClickGenerateRandomEncryptionKey()
+    {
+        string key;
+
+        do
+        {
+            key = GenerateRandomEncryptionKey();
+        }
+        while (!CheckEncryptionKeyStrength(key));
+
+#if DEBUG
+        Console.WriteLine($"Generated password: {key}");
+#endif
+
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.EXPORT_PW, key);
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.EXPORT_PW_CONFIRMATION, key);
+
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.COPY_TO_CLIPBOARD, key);
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.ALERT_DIALOG, "The generated password has been copied to your clipboard. Please make sure to paste it somewhere safe and DO NOT LOSE IT!");
+
+        await Task.Delay(256);
+        await CheckExportReady();
+    }
+
+    private async Task OnClickCopyEncryptionCiphertext()
+    {
+        string content = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_INPUT_VALUE, Constants.ElementIds.BACKUP_ENCRYPTION_CIPHERTEXT, string.Empty);
+
+        if (content.NullOrEmpty())
+        {
+            return;
+        }
+
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.COPY_TO_CLIPBOARD, content);
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.ALERT_DIALOG, "Exported backup copied to clipboard.");
+    }
+
     private async Task OnClickExport()
     {
         string userDataPlaintext = await UserDataService.GetUserDataPlaintext();
 
         if (userDataPlaintext.NullOrEmpty())
         {
+            userDataPlaintext = "{}";
+        }
+
+        string aesGcmKey = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_INPUT_VALUE, Constants.ElementIds.EXPORT_PW, string.Empty);
+
+        if (!CheckEncryptionKeyStrength(aesGcmKey))
+        {
+            await JS.InvokeVoidAsync(Constants.InteropFunctionNames.ALERT_DIALOG, "Password too weak! It needs to be at least 7 characters long and contain numbers, lowercase letters, UPPERCASE letters as well as $p€c1a| symbols.");
+            return;
+        }
+
+        if (aesGcmKey != await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_INPUT_VALUE, Constants.ElementIds.EXPORT_PW_CONFIRMATION, string.Empty))
+        {
+            await JS.InvokeVoidAsync(Constants.InteropFunctionNames.ALERT_DIALOG, "Password does not match its confirmation field. Please ensure that you type it out correctly twice - without any typos!");
             return;
         }
 
@@ -101,29 +418,25 @@
             byte[] plaintextBytes = userDataPlaintext.UTF8GetBytes();
             byte[] ciphertextBytes = new byte[aesGcm.GetOutputSize(plaintextBytes.Length)];
 
-            int n = aesGcm.ProcessBytes(plaintextBytes, ciphertextBytes);
+            int n = aesGcm.ProcessBytes(plaintextBytes, 0, plaintextBytes.Length, ciphertextBytes, 0);
 
-            aesGcm.DoFinal(ciphertextBytes[n..]);
-
-            int offset = 0;
+            aesGcm.DoFinal(ciphertextBytes, n);
 
             byte[] resultBytes = new byte[Constants.AesGcm.NONCE_SIZE_BYTES + ciphertextBytes.Length];
 
-            for (int i = 0; i < nonceBytes.Length; ++i)
+            for (int i = 0; i < Constants.AesGcm.NONCE_SIZE_BYTES; ++i)
             {
-                resultBytes[i + offset] = nonceBytes[i];
+                resultBytes[i] = nonceBytes[i];
             }
-
-            offset += Constants.AesGcm.NONCE_SIZE_BYTES;
 
             for (int i = 0; i < ciphertextBytes.Length; ++i)
             {
-                resultBytes[i + offset] = ciphertextBytes[i];
+                resultBytes[i + Constants.AesGcm.NONCE_SIZE_BYTES] = ciphertextBytes[i];
             }
 
-            encryptionCiphertext = Convert.ToHexString(resultBytes);
+            string encryptionCiphertext = Convert.ToHexString(resultBytes);
 
-            // TODO: open dialog here that shows the ciphertext and allows user to copy to clipboard
+            await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.BACKUP_ENCRYPTION_CIPHERTEXT, encryptionCiphertext);
 
             CryptographicOperations.ZeroMemory(resultBytes);
             CryptographicOperations.ZeroMemory(plaintextBytes);
@@ -132,7 +445,7 @@
         catch (Exception e)
         {
             Console.WriteLine($"Encryption failed. Thrown exception: {e.ToString()}");
-            
+
             await JS.InvokeVoidAsync(Constants.InteropFunctionNames.ALERT_DIALOG, "ERROR: Encryption failed.");
         }
         finally
@@ -140,12 +453,20 @@
             // Cleanup.
             aesGcmKey = string.Empty;
             Random.Shared.NextBytes(nonceBytes);
+
+            await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.IMPORT_PW, string.Empty);
+            await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.EXPORT_PW, string.Empty);
+            await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.EXPORT_PW_CONFIRMATION, string.Empty);
+
+            await CheckExportReady();
         }
     }
 
     private async Task OnClickImport()
     {
         string decryptionPlaintext = string.Empty;
+
+        string decryptionCiphertext = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_INPUT_VALUE, Constants.ElementIds.BACKUP_DECRYPTION_CIPHERTEXT, string.Empty);
 
         if (decryptionCiphertext.NullOrEmpty())
         {
@@ -157,17 +478,25 @@
             await JS.InvokeVoidAsync(Constants.InteropFunctionNames.ALERT_DIALOG, "ERROR: Decryption failed. Invalid ciphertext! Hex-encoded strings are always divisible by two in size. Did you maybe not paste in the entire ciphertext? Sometimes it's easy to miss just one character at the start or end of the ciphertext...");
             return;
         }
-        
+
+        string aesGcmKey = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_INPUT_VALUE, Constants.ElementIds.IMPORT_PW, string.Empty);
+
+        if (aesGcmKey.NullOrEmpty())
+        {
+            await JS.InvokeVoidAsync(Constants.InteropFunctionNames.ALERT_DIALOG, "ERROR: Decryption failed. No decryption key provided! Please enter the correct password (the one with which the backup you're trying to import was encrypted with).");
+            return;
+        }
+
         try
         {
-            byte[] encryptionCiphertextBytes = Convert.FromHexString(decryptionCiphertext);
+            byte[] decryptionCiphertextBytes = Convert.FromHexString(decryptionCiphertext);
 
-            for (int i = 0; i < nonceBytes.Length; ++i)
+            for (int i = 0; i < Constants.AesGcm.NONCE_SIZE_BYTES; ++i)
             {
-                nonceBytes[i] = encryptionCiphertextBytes[i];
+                nonceBytes[i] = decryptionCiphertextBytes[i];
             }
 
-            byte[] ciphertextBytes = encryptionCiphertextBytes[Constants.AesGcm.NONCE_SIZE_BYTES..];
+            byte[] ciphertextBytes = decryptionCiphertextBytes[Constants.AesGcm.NONCE_SIZE_BYTES..];
 
             AesEngine aesEngine = new();
             GcmBlockCipher cipher = new(aesEngine);
@@ -177,11 +506,15 @@
 
             byte[] plaintextBytes = new byte[cipher.GetOutputSize(ciphertextBytes.Length)];
 
-            int n = cipher.ProcessBytes(ciphertextBytes, plaintextBytes);
+            int n = cipher.ProcessBytes(ciphertextBytes, 0, ciphertextBytes.Length, plaintextBytes, 0);
 
             cipher.DoFinal(plaintextBytes[n..]);
 
             decryptionPlaintext = Encoding.UTF8.GetString(plaintextBytes);
+
+#if DEBUG
+            Console.WriteLine($"Decryption of backup successful: {decryptionPlaintext}");
+#endif
 
             Models.UserData? userData = JsonSerializer.Deserialize<Models.UserData>(decryptionPlaintext);
 
@@ -195,14 +528,20 @@
             }
 
             // Cleanup.
-            CryptographicOperations.ZeroMemory(encryptionCiphertextBytes);
+            CryptographicOperations.ZeroMemory(decryptionCiphertextBytes);
             CryptographicOperations.ZeroMemory(ciphertextBytes);
             CryptographicOperations.ZeroMemory(plaintextBytes);
+        }
+        catch (JsonException e)
+        {
+            Console.WriteLine($"ERROR: Decryption succeeded, but JSON deserialization of the user data failed. Thrown exception: {e.ToString()}");
+
+            await JS.InvokeVoidAsync(Constants.InteropFunctionNames.ALERT_DIALOG, "ERROR: Invalid data format.");
         }
         catch (Exception e)
         {
             Console.WriteLine($"ERROR: Decryption failed. Thrown exception: {e.ToString()}");
-            
+
             await JS.InvokeVoidAsync(Constants.InteropFunctionNames.ALERT_DIALOG, "ERROR: Decryption failed. Please double-check that the decryption key is correct and the ciphertext was pasted in entirely!");
         }
         finally
@@ -210,13 +549,19 @@
             // Cleanup.
             aesGcmKey = string.Empty;
             Random.Shared.NextBytes(nonceBytes);
+
+            await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.IMPORT_PW, string.Empty);
+            await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.EXPORT_PW, string.Empty);
+            await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.EXPORT_PW_CONFIRMATION, string.Empty);
+
+            await CheckImportReady();
         }
 
         if (decryptionPlaintext.NullOrEmpty())
         {
             return;
         }
-        
+
         await UserDataService.SetUserDataPlaintext(decryptionPlaintext);
 
         Navigation.NavigateTo("/", true);

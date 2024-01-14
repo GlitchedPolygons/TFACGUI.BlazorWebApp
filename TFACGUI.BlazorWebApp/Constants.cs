@@ -5,6 +5,11 @@ public static class Constants
     public static class ElementIds
     {
         public const string USER_DATA = "UserData";
+        public const string IMPORT_PW = "importPassword";
+        public const string EXPORT_PW = "exportPassword";
+        public const string EXPORT_PW_CONFIRMATION = "exportPasswordConfirmation";
+        public const string BACKUP_ENCRYPTION_CIPHERTEXT = "encryptionCiphertext";
+        public const string BACKUP_DECRYPTION_CIPHERTEXT = "decryptionCiphertext";
     }
 
     public static class InteropFunctionNames
@@ -15,6 +20,7 @@ public static class Constants
         public const string SET_INPUT_VALUE = "SetInputValue";
         public const string GET_LOCALSTORAGE_VALUE = "localStorage.getItem";
         public const string SET_LOCALSTORAGE_VALUE = "localStorage.setItem";
+        public const string COPY_TO_CLIPBOARD = "navigator.clipboard.writeText";
     }
     
     public static class AesGcm
