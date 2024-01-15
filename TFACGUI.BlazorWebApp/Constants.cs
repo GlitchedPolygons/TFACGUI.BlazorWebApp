@@ -10,6 +10,8 @@ public static class Constants
         public const string EXPORT_PW_CONFIRMATION = "exportPasswordConfirmation";
         public const string BACKUP_ENCRYPTION_CIPHERTEXT = "encryptionCiphertext";
         public const string BACKUP_DECRYPTION_CIPHERTEXT = "decryptionCiphertext";
+        
+        public const string TOTP_SECRET = "totpSecret";
     }
 
     public static class InteropFunctionNames

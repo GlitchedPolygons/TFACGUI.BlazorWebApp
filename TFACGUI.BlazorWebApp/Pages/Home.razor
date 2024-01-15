@@ -4,7 +4,9 @@
 @inject IUserDataService UserDataService
 
 @using ReactorBlazorQRCodeScanner
+@using TFACGUI.BlazorWebApp.Models
 @using TFACGUI.BlazorWebApp.Services
+@using GlitchedPolygons.ExtensionMethods
 
 <PageTitle>
     TFACGUI
@@ -31,8 +33,20 @@
 
 <QRCodeScanner LoadingMessage=""
                OutputMessage="No QR code detected"
-               Width="512" />
+               Width="@qrCodeScannerWidth" />
 
+@foreach (TotpConfig totpConfig in userData.Chain)
+{
+    <div class="card stretch-when-narrow">
+        <div class="card-body">
+            <h4 class="card-title">@totpConfig.Name</h4>
+            <h6 class="card-subtitle mb-2 text-muted">@totpConfig.Label</h6>
+            <p class="card-text"><code class="totp-code">@totpConfig.Totp</code></p>
+            <a href="#" class="card-link">Copy</a>
+            <a href="#" class="card-link">Edit</a>
+        </div>
+    </div>
+}
 
 <!-- Manual 2FA registration modal -->
 <div class="modal fade"
@@ -112,16 +126,24 @@
 @code {
 
     private bool registrationReady = false;
-
+    
     private QRCodeScannerJsInterop? qrCodeScannerJsInterop;
+    private Models.UserData userData = Models.UserData.Empty;
 
+    private readonly string qrCodeScannerWidth = "512";
     private readonly string manualRegistrationDescTooltip = "This is useful for example if your device has no camera to scan the QR code with, or if you want more control over how the entry is going to be labelled inside your TFACGUI chain.\n\nMake sure to enter everything correctly and label everything in an easily recognizable fashion!";
 
-    protected override Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
         qrCodeScannerJsInterop = new QRCodeScannerJsInterop(JS);
 
-        return Task.CompletedTask;
+        userData = await UserDataService.GetUserData();
+
+        for (;;)
+        {
+            StateHasChanged();
+            await Task.Delay(512);
+        }
     }
 
     private async Task OnClickScanTotpSecret()
@@ -145,14 +167,26 @@
         qrCodeScannerJsInterop?.StopRecording().GetAwaiter().GetResult();
     }
 
-    private void OnClickEnterManually()
+    private async Task OnClickEnterManually()
     {
-        // TODO: impl.
+        string totpSecret = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_INPUT_VALUE, Constants.ElementIds.TOTP_SECRET, string.Empty);
+        
+        userData.Chain.Add(new TotpConfig()
+        {
+            TotpSecretKey = totpSecret,
+            Name = "TEST TEST"
+        });
+
+        await UserDataService.SetUserData(userData);
+        
+        StateHasChanged();
     }
 
-    private void CheckManualRegistrationReady()
+    private async Task CheckManualRegistrationReady()
     {
-        // TODO: impl.
+        string totpSecret = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_INPUT_VALUE, Constants.ElementIds.TOTP_SECRET, string.Empty);
+
+        registrationReady = totpSecret.NotNullNotEmpty(); // TODO: check other fields against validity too! And ensure valid Base32 encoding!
     }
 
 }

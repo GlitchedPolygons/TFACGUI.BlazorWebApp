@@ -1,4 +1,6 @@
-﻿using OtpNet;
+﻿using System.Text;
+using System.Text.Json.Serialization;
+using OtpNet;
 
 namespace TFACGUI.BlazorWebApp.Models;
 
@@ -16,13 +18,13 @@ public class TotpConfig
     /// User-definable color to associate with this <see cref="TotpConfig"/> entry.
     /// </summary>
     public string Color { get; set; } = string.Empty;
-    
+
     /// <summary>
     /// The label that was encoded into the <c>otpauth://totp/</c> URI (typically, this also describes the <see cref="TotpConfig"/>, just like the user-definable <see cref="Name"/>).<para> </para>
     /// The label is used to identify which account a key is associated with.
     /// </summary>
     public string Label { get; set; } = string.Empty;
-    
+
     /// <summary>
     /// The issuer parameter is a string value indicating the provider or service this account is associated with, URL-encoded according to RFC 3986.
     /// </summary>
@@ -42,9 +44,67 @@ public class TotpConfig
     /// TOTP hashing algo (default is SHA-1).
     /// </summary>
     public OtpHashMode Algorithm { get; set; } = OtpHashMode.Sha1;
-    
+
     /// <summary>
     /// Base32-encoded 2FA secret.
     /// </summary>
     public string TotpSecretKey { get; set; } = string.Empty;
+
+    /// <summary>
+    /// The current TOTP computed by this <see cref="TotpConfig"/>'s 2FA secret and algo parameters.
+    /// </summary>
+    [JsonIgnore]
+    public string Totp
+    {
+        get
+        {
+            try
+            {
+                string totp =
+                    new Totp
+                    (
+                        Base32Encoding.ToBytes(TotpSecretKey),
+                        Period,
+                        Algorithm,
+                        Digits
+                    )
+                    .ComputeTotp();
+
+                switch (Digits)
+                {
+                    case 6:
+                    {
+                        return totp.Insert(3, " ");
+                    }
+                    case 8:
+                    {
+                        return totp.Insert(4, " ");
+                    }
+                    default:
+                    {
+                        StringBuilder totpStringBuilder = new(Digits + 8);
+                        
+                        for (int i = 0; i < totp.Length; ++i)
+                        {
+                            totpStringBuilder.Append(totp[i]);
+                            
+                            if ((i + 1) % 2 == 0)
+                            {
+                                totpStringBuilder.Append(' ');
+                            }
+                        }
+
+                        return totpStringBuilder.ToString();
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+#if DEBUG
+                Console.WriteLine($"TOTP generation for chain entry \"{Label}\" (user label: \"{Name}\") failed. Thrown exception: {e.ToString()}");
+#endif
+                return "ERROR";
+            }
+        }
+    }
 }

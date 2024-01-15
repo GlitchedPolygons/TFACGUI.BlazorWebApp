@@ -137,7 +137,13 @@ code {
 }
 
 .card {
-    max-width: 20rem;
+    border-radius: 4px !important;
+}
+
+@media (min-width: 1024px){
+    .card {
+        max-width: 25rem;
+    }
 }
 
 .page-link {
@@ -167,4 +173,17 @@ code {
     gap: 12px; 
     margin-top: 1.5rem; 
     margin-bottom: 64px;
+}
+
+#canvas {
+    border-radius: 4px;
+}
+
+.totp-code {
+    user-select: none;
+    -ms-user-select: none;
+    -webkit-user-select: none;
+    font-size: x-large;
+    letter-spacing: 0.42rem;
+    font-family: consolas, monospace;
 }

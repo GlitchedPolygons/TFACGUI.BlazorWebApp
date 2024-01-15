@@ -310,7 +310,7 @@ code {
 }
 
 .card {
-    outline: 1px solid #88888870;
+    border: 1px solid #88888870;
 }
 
 .pagination {
