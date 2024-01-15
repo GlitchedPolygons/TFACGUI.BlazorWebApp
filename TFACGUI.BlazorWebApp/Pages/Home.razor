@@ -41,18 +41,23 @@
 
         <div class="card-body">
 
-            <h4 class="card-title">
+            <h4 class="card-title"
+                id="@totpConfig.Id"
+                style="cursor: pointer;"
+                @onclick="() => OnClickEditConfig(totpConfig)">
                 @totpConfig.Name
             </h4>
 
-            <h6 class="card-subtitle mb-2" 
+            <h6 class="card-subtitle mb-2"
                 title="Issuer: @totpConfig.Issuer">
                 @totpConfig.Label
             </h6>
 
             <p class="card-text">
 
-                <code class="totp-code">
+                <code class="totp-code"
+                      style="cursor: pointer;"
+                      @onclick="() => OnClickCopyTOTP(totpConfig)">
                     @totpConfig.Totp
                 </code>
 
@@ -67,23 +72,6 @@
                      aria-valuenow="@totpConfig.RemainingLifetimePercentage"
                      style="width: @(totpConfig.RemainingLifetimePercentage)%;">
                 </div>
-
-            </div>
-
-            <div class="btn-flex"
-                 style="margin-bottom: 0">
-
-                <button type="button"
-                        id="@totpConfig.Id"
-                        @onclick="() => OnClickCopyTOTP(totpConfig)"
-                        class="btn btn-primary stretch-when-narrow">
-                    Copy
-                </button>
-
-                <button type="button"
-                        class="btn btn-secondary stretch-when-narrow">
-                    Edit
-                </button>
 
             </div>
         </div>
@@ -184,7 +172,7 @@
         for (;;)
         {
             StateHasChanged();
-            
+
             await Task.Delay(256);
         }
     }
@@ -204,6 +192,11 @@
         }
 
         await qrCodeScannerJsInterop.Init(OnQrCodeScan);
+    }
+
+    private async Task OnClickEditConfig(TotpConfig config)
+    {
+        // TODO: impl.
     }
 
     private void OnQrCodeScan(string qrCodeContent)
@@ -238,4 +231,5 @@
 
         registrationReady = totpSecret.NotNullNotEmpty(); // TODO: check other fields against validity too! And ensure valid Base32 encoding!
     }
+
 }

@@ -21,6 +21,7 @@ function PressCopyButtonPortable(buttonElementId)
         return;
     }
 
-    copyButton.innerHTML = 'Done...'; 
+    copyButton.innerHTML = 'Copied...'; 
+    
     setTimeout(() => copyButton.innerHTML = 'Copy', 1337);
 }
