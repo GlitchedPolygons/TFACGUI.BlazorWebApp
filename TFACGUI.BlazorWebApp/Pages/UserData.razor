@@ -464,6 +464,8 @@
 
     private async Task OnClickImport()
     {
+        bool success = false;
+        
         string decryptionPlaintext = string.Empty;
 
         string decryptionCiphertext = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_INPUT_VALUE, Constants.ElementIds.BACKUP_DECRYPTION_CIPHERTEXT, string.Empty);
@@ -496,40 +498,35 @@
                 nonceBytes[i] = decryptionCiphertextBytes[i];
             }
 
-            byte[] ciphertextBytes = decryptionCiphertextBytes[Constants.AesGcm.NONCE_SIZE_BYTES..];
-
             AesEngine aesEngine = new();
             GcmBlockCipher cipher = new(aesEngine);
             AeadParameters parameters = new AeadParameters(new KeyParameter(SHA256.HashData(aesGcmKey.UTF8GetBytes())), 8 * Constants.AesGcm.MAC_SIZE_BYTES, nonceBytes, null);
 
             cipher.Init(false, parameters);
 
-            byte[] plaintextBytes = new byte[cipher.GetOutputSize(ciphertextBytes.Length)];
+            byte[] plaintextBytes = new byte[cipher.GetOutputSize(decryptionCiphertextBytes.Length - Constants.AesGcm.NONCE_SIZE_BYTES)];
 
-            int n = cipher.ProcessBytes(ciphertextBytes, 0, ciphertextBytes.Length, plaintextBytes, 0);
+            int n = cipher.ProcessBytes(decryptionCiphertextBytes, Constants.AesGcm.NONCE_SIZE_BYTES, decryptionCiphertextBytes.Length - Constants.AesGcm.NONCE_SIZE_BYTES, plaintextBytes, 0);
 
-            cipher.DoFinal(plaintextBytes[n..]);
+            cipher.DoFinal(plaintextBytes, n);
 
             decryptionPlaintext = Encoding.UTF8.GetString(plaintextBytes);
-
-#if DEBUG
-            Console.WriteLine($"Decryption of backup successful: {decryptionPlaintext}");
-#endif
 
             Models.UserData? userData = JsonSerializer.Deserialize<Models.UserData>(decryptionPlaintext);
 
             if (userData is null)
             {
+                decryptionPlaintext = string.Empty;
+                
                 await JS.InvokeVoidAsync(Constants.InteropFunctionNames.ALERT_DIALOG, "ERROR: Invalid data format.");
             }
             else
             {
-                decryptionPlaintext = string.Empty;
+                success = true;
             }
 
             // Cleanup.
             CryptographicOperations.ZeroMemory(decryptionCiphertextBytes);
-            CryptographicOperations.ZeroMemory(ciphertextBytes);
             CryptographicOperations.ZeroMemory(plaintextBytes);
         }
         catch (JsonException e)
@@ -553,13 +550,19 @@
             await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.IMPORT_PW, string.Empty);
             await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.EXPORT_PW, string.Empty);
             await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.EXPORT_PW_CONFIRMATION, string.Empty);
+            await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.BACKUP_DECRYPTION_CIPHERTEXT, string.Empty);
 
             await CheckImportReady();
         }
 
-        if (decryptionPlaintext.NullOrEmpty())
+        if (!success)
         {
             return;
+        }
+
+        if (decryptionPlaintext.NullOrEmpty())
+        {
+            decryptionPlaintext = "{}";
         }
 
         await UserDataService.SetUserDataPlaintext(decryptionPlaintext);
@@ -580,5 +583,4 @@
 
         Navigation.NavigateTo("/", true);
     }
-
 }
