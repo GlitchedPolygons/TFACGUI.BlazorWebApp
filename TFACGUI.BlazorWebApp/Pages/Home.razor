@@ -14,7 +14,7 @@
     TFACGUI
 </h1>
 
-<div class="btn-flex">
+<div class="btn-flex mb-3">
 
     <button class="btn btn-primary stretch-when-narrow"
             @onclick="OnClickScanTotpSecret">
@@ -22,22 +22,100 @@
     </button>
 
     <button class="btn btn-primary stretch-when-narrow"
-            @onclick="OnClickEnterManually">
+            data-bs-toggle="modal"
+            data-bs-target="#registerTotpSecretModal">
         Enter manually
     </button>
 
 </div>
 
-<br />
-<br />
-
 <QRCodeScanner LoadingMessage=""
                OutputMessage="No QR code detected"
                Width="512" />
 
+
+<!-- Manual 2FA registration modal -->
+<div class="modal fade"
+     id="registerTotpSecretModal"
+     tabindex="-1"
+     aria-labelledby="registerTotpSecretModalLabel"
+     aria-hidden="true">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title"
+                    id="registerTotpSecretModalLabel">
+                    Manually enter a 2FA secret
+                </h5>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close">
+                </button>
+            </div>
+
+            <div class="modal-body">
+
+                <p>
+                    Manually add a 2FA secret to your TFACGUI chain by compiling the form below.
+                    <span style="cursor: help"
+                          title="@manualRegistrationDescTooltip"
+                          onclick="alert('@manualRegistrationDescTooltip.Replace("\n", "\\n")')">
+                        ❓
+                    </span>
+                </p>
+
+                <div class="form-group">
+
+                    <label for="totpSecret"
+                           class="form-label mt-2">
+                        2FA Secret
+                    </label>
+
+                    <input type="password"
+                           class="form-control"
+                           id="totpSecret"
+                           placeholder="Base32-encoded TOTP secret"
+                           @oninput="CheckManualRegistrationReady"
+                           onClick="this.select();"
+                           autocomplete="off">
+                </div>
+
+                <br />
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button type="button"
+                        class="btn btn-secondary stretch-when-narrow"
+                        data-bs-dismiss="modal">
+                    Cancel
+                </button>
+
+                <button type="button"
+                        class="btn btn-success stretch-when-narrow"
+                        disabled="@(!registrationReady)"
+                        @onclick="OnClickEnterManually">
+                    Add
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @code {
 
+    private bool registrationReady = false;
+
     private QRCodeScannerJsInterop? qrCodeScannerJsInterop;
+
+    private readonly string manualRegistrationDescTooltip = "This is useful for example if your device has no camera to scan the QR code with, or if you want more control over how the entry is going to be labelled inside your TFACGUI chain.\n\nMake sure to enter everything correctly and label everything in an easily recognizable fashion!";
 
     protected override Task OnInitializedAsync()
     {
@@ -68,6 +146,11 @@
     }
 
     private void OnClickEnterManually()
+    {
+        // TODO: impl.
+    }
+
+    private void CheckManualRegistrationReady()
     {
         // TODO: impl.
     }
