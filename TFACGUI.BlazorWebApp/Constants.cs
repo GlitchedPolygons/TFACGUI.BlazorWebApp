@@ -10,6 +10,7 @@ public static class Constants
         public const string EXPORT_PW_CONFIRMATION = "exportPasswordConfirmation";
         public const string BACKUP_ENCRYPTION_CIPHERTEXT = "encryptionCiphertext";
         public const string BACKUP_DECRYPTION_CIPHERTEXT = "decryptionCiphertext";
+        public const string COPY_EXPORTED_BACKUP_BUTTON = "copyExportedBackupButton";
         
         public const string TOTP_SECRET = "totpSecret";
     }
@@ -23,6 +24,8 @@ public static class Constants
         public const string GET_LOCALSTORAGE_VALUE = "localStorage.getItem";
         public const string SET_LOCALSTORAGE_VALUE = "localStorage.setItem";
         public const string COPY_TO_CLIPBOARD = "navigator.clipboard.writeText";
+        public const string INIT_COPY_BUTTON_LABEL = "InitCopyButtonLabel";
+        public const string PRESS_COPY_BUTTON_PORTABLE = "PressCopyButtonPortable";
     }
     
     public static class AesGcm

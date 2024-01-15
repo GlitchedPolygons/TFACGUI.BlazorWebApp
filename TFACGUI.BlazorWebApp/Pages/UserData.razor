@@ -15,7 +15,9 @@
 @using System.Text.Json
 @using System.Text.RegularExpressions
 
-<PageTitle>TFACGUI Import / export data</PageTitle>
+<PageTitle>
+    TFACGUI Import / export data
+</PageTitle>
 
 <h1>
     Import / export
@@ -144,6 +146,8 @@
                 </div>
 
                 <button type="button"
+                        style="min-width: 128px;"
+                        id="copyExportedBackupButton"
                         class="btn btn-outline-primary mt-2"
                         @onclick="OnClickCopyEncryptionCiphertext">
                     Copy
@@ -296,6 +300,16 @@
                 ['-', '_', '@', ',', '.', '+', '*', '#']
             );
     }
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await Task.Delay(64);
+            
+            await JS.InvokeVoidAsync(Constants.InteropFunctionNames.INIT_COPY_BUTTON_LABEL, Constants.ElementIds.COPY_EXPORTED_BACKUP_BUTTON);
+        }
+    }
 
     private bool CheckEncryptionKeyStrength(string key)
     {
@@ -379,7 +393,6 @@
         }
 
         await JS.InvokeVoidAsync(Constants.InteropFunctionNames.COPY_TO_CLIPBOARD, content);
-        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.ALERT_DIALOG, "Exported backup copied to clipboard.");
     }
 
     private async Task OnClickExport()

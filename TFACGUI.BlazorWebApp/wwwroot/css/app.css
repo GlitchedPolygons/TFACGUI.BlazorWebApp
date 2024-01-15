@@ -1,3 +1,12 @@
+@font-face {
+    font-family: 'RobotoBold';
+    src: url('../fonts/roboto-mono/static/RobotoMono-Bold.eot'); /* IE9 Compat Modes */
+    src: url('../fonts/roboto-mono/static/RobotoMono-Bold.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+    url('../fonts/roboto-mono/static/RobotoMono-Bold.woff') format('woff'), /* Modern Browsers */
+    url('../fonts/roboto-mono/static/RobotoMono-Bold.ttf')  format('truetype'), /* Safari, Android, iOS */
+    url('../fonts/roboto-mono/static/RobotoMono-Bold.svg#RobotoMono-Bold') format('svg'); /* Legacy iOS */
+}
+
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
@@ -183,7 +192,8 @@ code {
     user-select: none;
     -ms-user-select: none;
     -webkit-user-select: none;
-    font-size: x-large;
     letter-spacing: 0.42rem;
-    font-family: consolas, monospace;
+    font-weight: 500;
+    font-size: 2.0rem;
+    font-family: RobotoBold, monospace;
 }

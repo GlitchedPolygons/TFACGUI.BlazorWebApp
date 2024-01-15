@@ -37,13 +37,55 @@
 
 @foreach (TotpConfig totpConfig in userData.Chain)
 {
-    <div class="card stretch-when-narrow">
+    <div class="card stretch-when-narrow mb-3">
+
         <div class="card-body">
-            <h4 class="card-title">@totpConfig.Name</h4>
-            <h6 class="card-subtitle mb-2 text-muted">@totpConfig.Label</h6>
-            <p class="card-text"><code class="totp-code">@totpConfig.Totp</code></p>
-            <a href="#" class="card-link">Copy</a>
-            <a href="#" class="card-link">Edit</a>
+
+            <h4 class="card-title">
+                @totpConfig.Name
+            </h4>
+
+            <h6 class="card-subtitle mb-2" 
+                title="Issuer: @totpConfig.Issuer">
+                @totpConfig.Label
+            </h6>
+
+            <p class="card-text">
+
+                <code class="totp-code">
+                    @totpConfig.Totp
+                </code>
+
+            </p>
+
+            <div class="progress">
+
+                <div class="progress-bar @(totpConfig.RemainingSeconds < 4 ? "bg-danger" : totpConfig.RemainingSeconds < 8 ? "bg-warning" : string.Empty)"
+                     role="progressbar"
+                     aria-valuemin="0"
+                     aria-valuemax="100"
+                     aria-valuenow="@totpConfig.RemainingLifetimePercentage"
+                     style="width: @(totpConfig.RemainingLifetimePercentage)%;">
+                </div>
+
+            </div>
+
+            <div class="btn-flex"
+                 style="margin-bottom: 0">
+
+                <button type="button"
+                        id="@totpConfig.Id"
+                        @onclick="() => OnClickCopyTOTP(totpConfig)"
+                        class="btn btn-primary stretch-when-narrow">
+                    Copy
+                </button>
+
+                <button type="button"
+                        class="btn btn-secondary stretch-when-narrow">
+                    Edit
+                </button>
+
+            </div>
         </div>
     </div>
 }
@@ -126,7 +168,7 @@
 @code {
 
     private bool registrationReady = false;
-    
+
     private QRCodeScannerJsInterop? qrCodeScannerJsInterop;
     private Models.UserData userData = Models.UserData.Empty;
 
@@ -142,8 +184,16 @@
         for (;;)
         {
             StateHasChanged();
-            await Task.Delay(512);
+            
+            await Task.Delay(256);
         }
+    }
+
+    private async Task OnClickCopyTOTP(TotpConfig totpConfig)
+    {
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.COPY_TO_CLIPBOARD, totpConfig.TotpRaw);
+
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.PRESS_COPY_BUTTON_PORTABLE, totpConfig.Id);
     }
 
     private async Task OnClickScanTotpSecret()
@@ -170,15 +220,15 @@
     private async Task OnClickEnterManually()
     {
         string totpSecret = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_INPUT_VALUE, Constants.ElementIds.TOTP_SECRET, string.Empty);
-        
-        userData.Chain.Add(new TotpConfig()
+
+        userData.Chain.Add(new TotpConfig
         {
             TotpSecretKey = totpSecret,
             Name = "TEST TEST"
         });
 
         await UserDataService.SetUserData(userData);
-        
+
         StateHasChanged();
     }
 
@@ -188,5 +238,4 @@
 
         registrationReady = totpSecret.NotNullNotEmpty(); // TODO: check other fields against validity too! And ensure valid Base32 encoding!
     }
-
 }

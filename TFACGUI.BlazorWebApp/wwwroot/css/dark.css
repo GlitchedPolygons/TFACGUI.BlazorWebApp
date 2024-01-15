@@ -191,7 +191,7 @@ code {
 .card-subtitle {
     margin-top: calc(-0.5 * var(--bs-card-title-spacer-y));
     margin-bottom: 0;
-    color: aliceblue;
+    color: #a2afba;
 }
 
 .card-text:last-child {
