@@ -14,6 +14,11 @@ public class UserDataService(IJSRuntime js) : IUserDataService
 
     public ValueTask SetUserDataPlaintext(string userDataPlaintext)
     {
+        if (userDataPlaintext.NullOrEmpty())
+        {
+            userDataPlaintext = "{}";
+        }
+        
         return js.InvokeVoidAsync(Constants.InteropFunctionNames.SET_LOCALSTORAGE_VALUE, Constants.ElementIds.USER_DATA, userDataPlaintext);
     }
 
