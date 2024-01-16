@@ -276,8 +276,8 @@
     private readonly string qrCodeScannerWidth = "512";
     private readonly string manualRegistrationDescTooltip = "Manually registering a 2FA secret is useful for example if your device has no camera to scan the QR code with, or if you want more control over how the entry is going to be labelled inside your TFACGUI chain.\n\nMake sure to enter everything correctly and label everything in an easily recognizable fashion!";
 
-    protected int newTotpConfigInterval = TotpConfig.Empty.Period;
-    protected int NewTotpConfigInterval
+    protected string newTotpConfigInterval = TotpConfig.Empty.Period.ToString();
+    protected string NewTotpConfigInterval
     {
         get => newTotpConfigInterval;
         set
