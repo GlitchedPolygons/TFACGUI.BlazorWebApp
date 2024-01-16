@@ -159,48 +159,83 @@
                 </div>
 
                 <fieldset class="form-group">
-                    
+
+                    <label class="form-label mt-2"
+                           id="@Constants.ElementIds.TOTP_DIGITS_SLIDER_LABEL"
+                           for="@Constants.ElementIds.TOTP_DIGITS_SLIDER">
+                        Digits: @TotpConfig.Empty.Digits
+                    </label>
+
+                    <input type="range"
+                           class="form-range"
+                           min="1"
+                           max="10"
+                           step="1.0"
+                           value="@TotpConfig.Empty.Digits"
+                           id="@Constants.ElementIds.TOTP_DIGITS_SLIDER">
+                </fieldset>
+
+                <fieldset class="form-group">
+
+                    <label class="form-label mt-2"
+                           id="@Constants.ElementIds.TOTP_INTERVAL_SLIDER_LABEL"
+                           for="@Constants.ElementIds.TOTP_INTERVAL_SLIDER">
+                        Interval: @TotpConfig.Empty.Period
+                    </label>
+
+                    <input type="range"
+                           class="form-range"
+                           min="1"
+                           max="60"
+                           step="1.0"
+                           value="@TotpConfig.Empty.Period"
+                           @oninput="OnChangeManualRegistrationModalIntervalSlider"
+                           id="@Constants.ElementIds.TOTP_INTERVAL_SLIDER">
+                </fieldset>
+
+                <fieldset class="form-group">
+
                     <label class="form-label mt-2">
                         Algorithm
                     </label>
-                    
+
                     <div class="form-check">
-                        
+
                         <input class="form-check-input"
                                type="radio"
                                name="algorithmRadioButtons"
                                id="algorithmRadioButtons0"
                                value="option1"
                                checked="">
-                        
+
                         <label class="form-check-label"
                                for="algorithmRadioButtons0">
                             SHA-1 (default)
                         </label>
                     </div>
-                    
+
                     <div class="form-check">
-                        
+
                         <input class="form-check-input"
                                type="radio"
                                name="algorithmRadioButtons"
                                id="algorithmRadioButtons1"
                                value="option2">
-                        
+
                         <label class="form-check-label"
                                for="algorithmRadioButtons1">
                             SHA-256
                         </label>
                     </div>
-                    
+
                     <div class="form-check">
-                        
+
                         <input class="form-check-input"
                                type="radio"
                                name="algorithmRadioButtons"
                                id="algorithmRadioButtons2"
                                value="option3">
-                        
+
                         <label class="form-check-label"
                                for="algorithmRadioButtons2">
                             SHA-512
@@ -250,10 +285,24 @@
 
         for (;;)
         {
+            await OnChangeManualRegistrationModalIntervalSlider();
+
             StateHasChanged();
 
             await Task.Delay(128);
         }
+    }
+
+    private async Task OnChangeManualRegistrationModalIntervalSlider()
+    {
+        string? period = await JS.InvokeAsync<string?>(Constants.InteropFunctionNames.GET_INPUT_VALUE, Constants.ElementIds.TOTP_INTERVAL_SLIDER, TotpConfig.Empty.Period);
+
+        if (period.NullOrEmpty())
+        {
+            return;
+        }
+
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.TOTP_INTERVAL_SLIDER_LABEL, $"Interval: {period}s", true);
     }
 
     private async Task OnClickCopyTOTP(TotpConfig totpConfig)

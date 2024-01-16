@@ -11,6 +11,11 @@ namespace TFACGUI.BlazorWebApp.Models;
 public class TotpConfig
 {
     /// <summary>
+    /// Default (empty) <see cref="TotpConfig"/> instance (useful for checking the default values assigned to the various TOTP parameters).
+    /// </summary>
+    public static readonly TotpConfig Empty = new();
+    
+    /// <summary>
     /// Element-ID for this <see cref="TotpConfig"/> entry.
     /// </summary>
     [JsonIgnore]

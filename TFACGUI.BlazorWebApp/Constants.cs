@@ -12,7 +12,12 @@ public static class Constants
         public const string COPY_EXPORTED_BACKUP_BUTTON = "copyExportedBackupButton";
 
         public const string TOP_NAVBAR = "topnavbar";
+        
         public const string TOTP_SECRET = "totpSecret";
+        public const string TOTP_INTERVAL_SLIDER = "totpIntervalSlider";
+        public const string TOTP_INTERVAL_SLIDER_LABEL = "totpIntervalSliderLabel";
+        public const string TOTP_DIGITS_SLIDER = "totpDigitsSlider";
+        public const string TOTP_DIGITS_SLIDER_LABEL = "totpDigitsSliderLabel";
         public const string TOTP_CONFIG_ENTRY_NAME = "totpConfigEntryName";
 
         public const string REGISTER_TOTP_SECRET_MODAL = "registerTotpSecretModal";
