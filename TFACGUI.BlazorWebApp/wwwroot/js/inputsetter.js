@@ -15,3 +15,15 @@ function SetInputValue(elementId, newValue, setInnerHtmlInsteadOfValue = false)
         }
     }
 }
+
+function SetRadioBoxValue(radioBoxName, newValue)
+{
+    const radioBox = document.querySelector(`input[name='${radioBoxName}'][value='${newValue}']`);
+
+    if (!radioBox)
+    {
+        return;
+    }
+
+    radioBox.checked = true;
+}

@@ -18,6 +18,10 @@ public static class Constants
         public const string TOTP_INTERVAL_SLIDER_LABEL = "totpIntervalSliderLabel";
         public const string TOTP_DIGITS_SLIDER = "totpDigitsSlider";
         public const string TOTP_DIGITS_SLIDER_LABEL = "totpDigitsSliderLabel";
+        public const string TOTP_ALGO_RADIO_BOX = "totpAlgorithmRadioBox";
+        public const string TOTP_ALGO_RADIO_BOX_BUTTON_SHA1 = "totpAlgorithmRadioBoxButtonSHA1";
+        public const string TOTP_ALGO_RADIO_BOX_BUTTON_SHA256 = "totpAlgorithmRadioBoxButtonSHA256";
+        public const string TOTP_ALGO_RADIO_BOX_BUTTON_SHA512 = "totpAlgorithmRadioBoxButtonSHA512";
         public const string TOTP_CONFIG_ENTRY_NAME = "totpConfigEntryName";
 
         public const string REGISTER_TOTP_SECRET_MODAL = "registerTotpSecretModal";
@@ -35,7 +39,9 @@ public static class Constants
         public const string ALERT_DIALOG = "alert";
         public const string CONFIRM_DIALOG = "confirm";
         public const string GET_INPUT_VALUE = "GetInputValue";
+        public const string GET_INPUT_VALUE_RADIO_BOX = "GetRadioBoxValue";
         public const string SET_INPUT_VALUE = "SetInputValue";
+        public const string SET_INPUT_VALUE_RADIO_BOX = "SetRadioBoxValue";
         public const string GET_USER_DARK_THEME_PREF = "GetUserDarkThemePreference";
         public const string GET_LOCALSTORAGE_VALUE = "localStorage.getItem";
         public const string SET_LOCALSTORAGE_VALUE = "localStorage.setItem";

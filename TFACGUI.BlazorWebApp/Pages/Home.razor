@@ -7,6 +7,7 @@
 @using TFACGUI.BlazorWebApp.Models
 @using TFACGUI.BlazorWebApp.Services
 @using GlitchedPolygons.ExtensionMethods
+@using OtpNet
 
 <PageTitle>
     TFACGUI
@@ -25,7 +26,8 @@
 
     <button class="btn btn-success stretch-when-narrow"
             data-bs-toggle="modal"
-            data-bs-target="#registerTotpSecretModal">
+            data-bs-target="#registerTotpSecretModal"
+            @onclick="ResetManualRegistrationModalForm">
         Enter manually
     </button>
 
@@ -172,6 +174,7 @@
                            max="10"
                            step="1.0"
                            value="@TotpConfig.Empty.Digits"
+                           @oninput="OnMoveDigitSlider"
                            id="@Constants.ElementIds.TOTP_DIGITS_SLIDER">
                 </fieldset>
 
@@ -180,7 +183,7 @@
                     <label class="form-label mt-2"
                            id="@Constants.ElementIds.TOTP_INTERVAL_SLIDER_LABEL"
                            for="@Constants.ElementIds.TOTP_INTERVAL_SLIDER">
-                        Interval: @TotpConfig.Empty.Period
+                        Interval: @TotpConfig.Empty.Period seconds
                     </label>
 
                     <input type="range"
@@ -188,7 +191,8 @@
                            min="1"
                            max="60"
                            step="1.0"
-                           @bind="NewTotpConfigInterval"
+                           value="@TotpConfig.Empty.Period"
+                           @oninput="OnMoveIntervalSlider"
                            id="@Constants.ElementIds.TOTP_INTERVAL_SLIDER">
                 </fieldset>
 
@@ -202,13 +206,13 @@
 
                         <input class="form-check-input"
                                type="radio"
-                               name="algorithmRadioButtons"
-                               id="algorithmRadioButtons0"
-                               value="option1"
-                               checked="">
+                               name="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX"
+                               id="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX_BUTTON_SHA1"
+                               value="@((int)OtpHashMode.Sha1)"
+                               checked>
 
                         <label class="form-check-label"
-                               for="algorithmRadioButtons0">
+                               for="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX_BUTTON_SHA1">
                             SHA-1 (default)
                         </label>
                     </div>
@@ -217,12 +221,12 @@
 
                         <input class="form-check-input"
                                type="radio"
-                               name="algorithmRadioButtons"
-                               id="algorithmRadioButtons1"
-                               value="option2">
+                               name="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX"
+                               id="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX_BUTTON_SHA256"
+                               value="@((int)OtpHashMode.Sha256)">
 
                         <label class="form-check-label"
-                               for="algorithmRadioButtons1">
+                               for="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX_BUTTON_SHA256">
                             SHA-256
                         </label>
                     </div>
@@ -231,12 +235,12 @@
 
                         <input class="form-check-input"
                                type="radio"
-                               name="algorithmRadioButtons"
-                               id="algorithmRadioButtons2"
-                               value="option3">
+                               name="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX"
+                               id="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX_BUTTON_SHA512"
+                               value="@((int)OtpHashMode.Sha512)">
 
                         <label class="form-check-label"
-                               for="algorithmRadioButtons2">
+                               for="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX_BUTTON_SHA512">
                             SHA-512
                         </label>
                     </div>
@@ -276,17 +280,6 @@
     private readonly string qrCodeScannerWidth = "512";
     private readonly string manualRegistrationDescTooltip = "Manually registering a 2FA secret is useful for example if your device has no camera to scan the QR code with, or if you want more control over how the entry is going to be labelled inside your TFACGUI chain.\n\nMake sure to enter everything correctly and label everything in an easily recognizable fashion!";
 
-    protected string newTotpConfigInterval = TotpConfig.Empty.Period.ToString();
-    protected string NewTotpConfigInterval
-    {
-        get => newTotpConfigInterval;
-        set
-        {
-            newTotpConfigInterval = value;
-            JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.TOTP_INTERVAL_SLIDER_LABEL, $"Interval: {newTotpConfigInterval}s", true);
-        }
-    }
-    
     protected override async Task OnInitializedAsync()
     {
         qrCodeScannerJsInterop = new QRCodeScannerJsInterop(JS);
@@ -299,6 +292,27 @@
 
             await Task.Delay(128);
         }
+    }
+
+    private async Task ResetManualRegistrationModalForm()
+    {
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.TOTP_CONFIG_ENTRY_NAME, string.Empty);
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.TOTP_SECRET, string.Empty);
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.TOTP_DIGITS_SLIDER, TotpConfig.Empty.Digits);
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.TOTP_INTERVAL_SLIDER, TotpConfig.Empty.Period);
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE_RADIO_BOX, Constants.ElementIds.TOTP_ALGO_RADIO_BOX, (int)TotpConfig.Empty.Algorithm);
+        await OnMoveDigitSlider(new ChangeEventArgs { Value = TotpConfig.Empty.Digits });
+        await OnMoveIntervalSlider(new ChangeEventArgs { Value = TotpConfig.Empty.Period });
+    }
+
+    private async Task OnMoveDigitSlider(ChangeEventArgs e)
+    {
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.TOTP_DIGITS_SLIDER_LABEL, $"Digits: {e.Value}", true);
+    }
+
+    private async Task OnMoveIntervalSlider(ChangeEventArgs e)
+    {
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.TOTP_INTERVAL_SLIDER_LABEL, $"Interval: {e.Value} second{(e.Value is "1" ? string.Empty : "s")}", true);
     }
 
     private async Task OnClickCopyTOTP(TotpConfig totpConfig)
@@ -339,12 +353,39 @@
     private async Task OnClickEnterManually()
     {
         string totpConfigName = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_INPUT_VALUE, Constants.ElementIds.TOTP_CONFIG_ENTRY_NAME, "(Unnamed)");
-        string totpSecret = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_INPUT_VALUE, Constants.ElementIds.TOTP_SECRET, string.Empty);
 
+        string totpSecret = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_INPUT_VALUE, Constants.ElementIds.TOTP_SECRET, string.Empty);
+        string totpDigits = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_INPUT_VALUE, Constants.ElementIds.TOTP_DIGITS_SLIDER, TotpConfig.Empty.Digits);
+        string totpPeriod = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_INPUT_VALUE, Constants.ElementIds.TOTP_INTERVAL_SLIDER, TotpConfig.Empty.Period);
+        string totpAlgo = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_INPUT_VALUE_RADIO_BOX, Constants.ElementIds.TOTP_ALGO_RADIO_BOX, (int)TotpConfig.Empty.Algorithm);
+
+        bool validBase32;
+
+        try
+        {
+            byte[] totpSecretBase32Decoded = Base32Encoding.ToBytes(totpSecret);
+            
+            validBase32 = totpSecretBase32Decoded.NotNullNotEmpty();
+        }
+        catch
+        {
+            validBase32 = false;
+        }
+
+        if (!validBase32)
+        {
+            await JS.InvokeVoidAsync(Constants.InteropFunctionNames.ALERT_DIALOG, "ERROR: Invalid 2FA secret. Please enter a valid, Base32-encoded 2FA secret!");
+            
+            return;
+        }
+        
         userData.Chain.Add(new TotpConfig
         {
             Name = totpConfigName,
             TotpSecretKey = totpSecret,
+            Digits = int.TryParse(totpDigits, out int totpDigitsInt) ? totpDigitsInt : TotpConfig.Empty.Digits,
+            Period = int.TryParse(totpPeriod, out int totpPeriodInt) ? totpPeriodInt : TotpConfig.Empty.Period,
+            Algorithm = int.TryParse(totpAlgo, out int totpAlgoIndex) ? (OtpHashMode)totpAlgoIndex : TotpConfig.Empty.Algorithm,
         });
 
         await UserDataService.SetUserData(userData);
@@ -355,8 +396,12 @@
     private async Task CheckManualRegistrationReady()
     {
         string totpSecret = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_INPUT_VALUE, Constants.ElementIds.TOTP_SECRET, string.Empty);
+        string totpConfigEntryName = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_INPUT_VALUE, Constants.ElementIds.TOTP_CONFIG_ENTRY_NAME, string.Empty);
 
-        registrationReady = totpSecret.NotNullNotEmpty(); // TODO: check other fields against validity too! And ensure valid Base32 encoding!
+        registrationReady =
+            totpSecret.NotNullNotEmpty()
+            &&
+            totpConfigEntryName.NotNullNotEmpty();
     }
 
 }

@@ -10,3 +10,15 @@ function GetInputValue(elementId, defaultValue)
     
     return inputElement.value;
 }
+
+function GetRadioBoxValue(radioBoxName, defaultValue)
+{
+    const radioBox = document.querySelector(`input[name=${radioBoxName}]:checked`);
+    
+    if (!radioBox)
+    {
+        return defaultValue;
+    }
+    
+    return radioBox.value;
+}

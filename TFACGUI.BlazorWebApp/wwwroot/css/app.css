@@ -216,6 +216,22 @@ code {
     filter: brightness(110%);
 }
 
+@media (max-width: 512px) {
+    .totp-code {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 384px) {
+    .totp-code {
+        font-size: 1.25rem;
+    }
+
+    .card-title {
+        font-size: 1.25rem;
+    }
+}
+
 .card-subtitle {
     letter-spacing: 0.05rem;
 }
