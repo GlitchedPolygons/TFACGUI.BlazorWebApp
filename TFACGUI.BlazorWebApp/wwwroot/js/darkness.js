@@ -1,10 +1,12 @@
 ﻿
-function UserHasDarkMode() 
+function GetUserDarkThemePreference() 
 {
-    if (window.matchMedia('(prefers-color-scheme: dark)').matches) 
+    const darkTheme = localStorage.getItem('DarkTheme');
+    
+    if (darkTheme)
     {
-        return true;
+        return darkTheme.toLowerCase() !== false;
     }
-
-    return false;
+    
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
 }

@@ -12,7 +12,7 @@ function InitCopyButtonLabel(buttonElementId)
     });
 }
 
-function PressCopyButtonPortable(buttonElementId)
+function PressCopyButtonPortable(buttonElementId, customTempText = 'Copied...', customRevertToText = 'Copy')
 {
     const copyButton = document.getElementById(buttonElementId);
     
@@ -21,7 +21,7 @@ function PressCopyButtonPortable(buttonElementId)
         return;
     }
 
-    copyButton.innerHTML = 'Copied...'; 
+    copyButton.innerHTML = customTempText; 
     
-    setTimeout(() => copyButton.innerHTML = 'Copy', 1337);
+    setTimeout(() => copyButton.innerHTML = customRevertToText, 1337);
 }

@@ -41,21 +41,32 @@
 
         <div class="card-body">
 
-            <h4 class="card-title"
-                id="@totpConfig.Id"
-                style="cursor: pointer;"
-                @onclick="() => OnClickEditConfig(totpConfig)">
-                @totpConfig.Name
-            </h4>
+            <div class="totp-title-label">
 
-            <h6 class="card-subtitle mb-2"
+                <span class="unselectable bi bi-clickable bi-pencil-square"
+                      aria-hidden="true"
+                      title="Click here to edit this TOTP config entry."
+                      style="cursor: pointer; top: 1px;"
+                      @onclick="() => OnClickEditConfig(totpConfig)">
+                </span>
+                
+                <h4 class="unselectable card-title bi-clickable"
+                    style="cursor: pointer;"
+                    @onclick="() => OnClickCopyTOTP(totpConfig)">
+                    @totpConfig.Name
+                </h4>
+                
+            </div>
+
+            <h6 class="unselectable card-subtitle mb-2"
                 title="Issuer: @totpConfig.Issuer">
                 @totpConfig.Label
             </h6>
 
             <p class="card-text">
 
-                <code class="totp-code"
+                <code class="totp-code unselectable"
+                      id="@totpConfig.Id"
                       style="cursor: pointer;"
                       @onclick="() => OnClickCopyTOTP(totpConfig)">
                     @totpConfig.Totp
@@ -80,9 +91,9 @@
 
 <!-- Manual 2FA registration modal -->
 <div class="modal fade"
-     id="registerTotpSecretModal"
+     id="@Constants.ElementIds.REGISTER_TOTP_SECRET_MODAL"
      tabindex="-1"
-     aria-labelledby="registerTotpSecretModalLabel"
+     aria-labelledby="@Constants.ElementIds.REGISTER_TOTP_SECRET_MODAL_LABEL"
      aria-hidden="true">
 
     <div class="modal-dialog">
@@ -92,7 +103,7 @@
             <div class="modal-header">
 
                 <h5 class="modal-title"
-                    id="registerTotpSecretModalLabel">
+                    id="@Constants.ElementIds.REGISTER_TOTP_SECRET_MODAL_LABEL">
                     Manually enter a 2FA secret
                 </h5>
 
@@ -116,14 +127,31 @@
 
                 <div class="form-group">
 
-                    <label for="totpSecret"
+                    <label for="@Constants.ElementIds.TOTP_CONFIG_ENTRY_NAME"
+                           class="form-label mt-2">
+                        Name
+                    </label>
+
+                    <input type="text"
+                           min="2"
+                           max="32"
+                           class="form-control"
+                           id="@Constants.ElementIds.TOTP_CONFIG_ENTRY_NAME"
+                           placeholder="Enter a recognizable name"
+                           @oninput="CheckManualRegistrationReady"
+                           autocomplete="off">
+                </div>
+
+                <div class="form-group">
+
+                    <label for="@Constants.ElementIds.TOTP_SECRET"
                            class="form-label mt-2">
                         2FA Secret
                     </label>
 
                     <input type="password"
                            class="form-control"
-                           id="totpSecret"
+                           id="@Constants.ElementIds.TOTP_SECRET"
                            placeholder="Base32-encoded TOTP secret"
                            @oninput="CheckManualRegistrationReady"
                            onClick="this.select();"
@@ -143,6 +171,7 @@
                 </button>
 
                 <button type="button"
+                        data-bs-dismiss="modal"
                         class="btn btn-success stretch-when-narrow"
                         disabled="@(!registrationReady)"
                         @onclick="OnClickEnterManually">
@@ -181,7 +210,9 @@
     {
         await JS.InvokeVoidAsync(Constants.InteropFunctionNames.COPY_TO_CLIPBOARD, totpConfig.TotpRaw);
 
-        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.PRESS_COPY_BUTTON_PORTABLE, totpConfig.Id);
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.PRESS_COPY_BUTTON_PORTABLE, totpConfig.Id, "\u2705Copied...", totpConfig.Totp);
+
+        // TODO: animate the card here (something flashy?)
     }
 
     private async Task OnClickScanTotpSecret()
@@ -212,12 +243,13 @@
 
     private async Task OnClickEnterManually()
     {
+        string totpConfigName = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_INPUT_VALUE, Constants.ElementIds.TOTP_CONFIG_ENTRY_NAME, "(Unnamed)");
         string totpSecret = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_INPUT_VALUE, Constants.ElementIds.TOTP_SECRET, string.Empty);
 
         userData.Chain.Add(new TotpConfig
         {
+            Name = totpConfigName,
             TotpSecretKey = totpSecret,
-            Name = "TEST TEST"
         });
 
         await UserDataService.SetUserData(userData);

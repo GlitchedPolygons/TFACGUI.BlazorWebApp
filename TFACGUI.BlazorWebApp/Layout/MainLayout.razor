@@ -1,6 +1,6 @@
 ﻿@inherits LayoutComponentBase
 
-@inject IJSRuntime JSRuntime
+@inject IJSRuntime JS
 
 @if (darkTheme)
 {
@@ -16,7 +16,16 @@
 
     <main>
 
-        <div id="topnavbar" class="top-row px-4">
+        <div id="@Constants.ElementIds.TOP_NAVBAR"
+             class="top-row px-4">
+            
+            <span class="unselectable bi bi-clickable @(darkTheme ? "bi-brightness-high-fill" : "bi-moon-stars-fill")"
+                  aria-hidden="true"
+                  title="Click here to toggle the dark theme on or off."
+                  @onclick="OnClickToggleThemeManually"
+                  style="cursor: pointer; top: 1px;">
+            </span>
+
             <a href="https://glitchedpolygons.com"
                target="_blank">
                 Copyright © @DateTime.UtcNow.Year, Raphael Beck
@@ -35,6 +44,15 @@
 
     protected override async Task OnInitializedAsync()
     {
-        darkTheme = await JSRuntime.InvokeAsync<bool>("UserHasDarkMode");
+        darkTheme = await JS.InvokeAsync<bool>(Constants.InteropFunctionNames.GET_USER_DARK_THEME_PREF);
+    }
+
+    private async Task OnClickToggleThemeManually()
+    {
+        darkTheme = !darkTheme;
+
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_LOCALSTORAGE_VALUE, Constants.LocalStorageIds.DARK_THEME, darkTheme);
+
+        StateHasChanged();
     }
 }

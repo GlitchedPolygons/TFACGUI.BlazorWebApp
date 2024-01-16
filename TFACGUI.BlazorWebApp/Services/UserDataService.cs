@@ -9,7 +9,7 @@ public class UserDataService(IJSRuntime js) : IUserDataService
 {
     public ValueTask<string> GetUserDataPlaintext()
     {
-        return js.InvokeAsync<string>(Constants.InteropFunctionNames.GET_LOCALSTORAGE_VALUE, Constants.ElementIds.USER_DATA);
+        return js.InvokeAsync<string>(Constants.InteropFunctionNames.GET_LOCALSTORAGE_VALUE, Constants.LocalStorageIds.USER_DATA);
     }
 
     public ValueTask SetUserDataPlaintext(string userDataPlaintext)
@@ -19,7 +19,7 @@ public class UserDataService(IJSRuntime js) : IUserDataService
             userDataPlaintext = "{}";
         }
         
-        return js.InvokeVoidAsync(Constants.InteropFunctionNames.SET_LOCALSTORAGE_VALUE, Constants.ElementIds.USER_DATA, userDataPlaintext);
+        return js.InvokeVoidAsync(Constants.InteropFunctionNames.SET_LOCALSTORAGE_VALUE, Constants.LocalStorageIds.USER_DATA, userDataPlaintext);
     }
 
     public async ValueTask<UserData> GetUserData()

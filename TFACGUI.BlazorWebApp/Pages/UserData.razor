@@ -112,7 +112,7 @@
 
                     <input type="password"
                            class="form-control"
-                           id="exportPassword"
+                           id="@Constants.ElementIds.EXPORT_PW"
                            placeholder="Password"
                            @oninput="CheckExportReady"
                            onClick="this.select();"
@@ -127,8 +127,8 @@
                     </label>
 
                     <input type="password"
+                           id="@Constants.ElementIds.EXPORT_PW_CONFIRMATION"
                            class="form-control"
-                           id="exportPasswordConfirmation"
                            placeholder="Password again"
                            @oninput="CheckExportReady"
                            onClick="this.select();"
@@ -142,12 +142,12 @@
                         Exported backup
                     </label>
 
-                    <textarea class="form-control" id="encryptionCiphertext" rows="4" onClick="this.select();" readonly></textarea>
+                    <textarea class="form-control" id="@Constants.ElementIds.BACKUP_ENCRYPTION_CIPHERTEXT" rows="4" onClick="this.select();" readonly></textarea>
                 </div>
 
                 <button type="button"
                         style="min-width: 128px;"
-                        id="copyExportedBackupButton"
+                        id="@Constants.ElementIds.COPY_EXPORTED_BACKUP_BUTTON"
                         class="btn btn-outline-primary mt-2"
                         @onclick="OnClickCopyEncryptionCiphertext">
                     Copy
@@ -231,7 +231,7 @@
 
                     <input type="password"
                            class="form-control"
-                           id="importPassword"
+                           id="@Constants.ElementIds.IMPORT_PW"
                            placeholder="Password"
                            @oninput="CheckImportReady"
                            onClick="this.select();"
@@ -245,7 +245,7 @@
                         Backup
                     </label>
 
-                    <textarea class="form-control" id="decryptionCiphertext" rows="4" onClick="this.select();" @oninput="CheckImportReady"></textarea>
+                    <textarea class="form-control" id="@Constants.ElementIds.BACKUP_DECRYPTION_CIPHERTEXT" rows="4" onClick="this.select();" @oninput="CheckImportReady"></textarea>
                 </div>
 
                 <br />
