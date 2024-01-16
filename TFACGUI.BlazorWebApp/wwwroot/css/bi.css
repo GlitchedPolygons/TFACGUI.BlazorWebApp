@@ -9,12 +9,16 @@
     background-size: cover;
 }
 
+.bi-themeable {
+    filter: invert(90%);
+}
+
 .bi-clickable:hover {
-    filter: brightness(75%);
+    filter: brightness(45%);
 }
 
 .bi-clickable:active {
-    filter: brightness(95%);
+    filter: brightness(25%);
 }
 
 .bi-pencil-square {

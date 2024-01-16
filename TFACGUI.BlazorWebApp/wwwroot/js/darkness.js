@@ -1,12 +1,16 @@
 ﻿
 function GetUserDarkThemePreference() 
 {
-    const darkTheme = localStorage.getItem('DarkTheme');
+    const localStorageKey = 'DarkTheme';
     
-    if (darkTheme)
+    let darkTheme = localStorage.getItem(localStorageKey);
+    
+    if (darkTheme === null)
     {
-        return darkTheme.toLowerCase() !== false;
+        darkTheme = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        localStorage.setItem(localStorageKey, darkTheme);
     }
-    
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    return darkTheme !== 'false';
 }

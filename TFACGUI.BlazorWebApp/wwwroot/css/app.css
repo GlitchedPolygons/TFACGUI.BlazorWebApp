@@ -147,6 +147,7 @@ code {
 
 .card {
     border-radius: 4px !important;
+    border-color: rgba(0, 0, 0, 0.32);
 }
 
 @media (min-width: 1024px){
@@ -213,4 +214,8 @@ code {
 
 .totp-code:active {
     filter: brightness(110%);
+}
+
+.card-subtitle {
+    letter-spacing: 0.05rem;
 }

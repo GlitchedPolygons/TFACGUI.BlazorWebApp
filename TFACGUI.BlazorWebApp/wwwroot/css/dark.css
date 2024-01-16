@@ -436,3 +436,15 @@ code {
 .modal-footer {
     border-top: 1px solid #dee2e659;
 }
+
+.bi-themeable {
+    filter: invert(0%);
+}
+
+.bi-clickable:hover {
+    filter: brightness(75%);
+}
+
+.bi-clickable:active {
+    filter: brightness(95%);
+}
