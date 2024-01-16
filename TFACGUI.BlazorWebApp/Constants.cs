@@ -39,6 +39,7 @@ public static class Constants
 
     public static class LocalStorageIds
     {
+        public const string GRID_VIEW = "GridView";
         public const string USER_DATA = "UserData";
         public const string DARK_THEME = "DarkTheme";
     }

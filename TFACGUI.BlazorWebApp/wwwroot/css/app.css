@@ -196,9 +196,10 @@ code {
 }
 
 .totp-title-label {
+    gap: 4px;
     display: flex;
     align-items: baseline;
-    gap: 4px;
+    overflow-wrap: anywhere;
 }
 
 .totp-code {
@@ -234,6 +235,7 @@ code {
 
 .card-subtitle {
     letter-spacing: 0.05rem;
+    overflow-wrap: anywhere;
 }
 
 @media (max-width: 640px) {
@@ -242,6 +244,12 @@ code {
     }
     
     .hide-on-mobile {
-        display: none;
+        display: none !important;
+    }
+}
+
+@media (max-width: 1024px) {
+    .hide-on-narrow-screens {
+        display: none !important;
     }
 }

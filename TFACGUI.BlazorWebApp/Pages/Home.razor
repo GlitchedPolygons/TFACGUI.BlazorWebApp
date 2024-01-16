@@ -19,17 +19,26 @@
 
 <div class="btn-flex homepage-mainbuttons mb-3">
 
-    <button class="btn btn-success stretch-when-narrow"
+    <button type="button"
+            class="btn btn-success stretch-when-narrow"
             @onclick="OnClickScanTotpSecret">
         Scan QR
     </button>
 
-    <button class="btn btn-success stretch-when-narrow"
+    <button type="button"
+            class="btn btn-success stretch-when-narrow"
             data-bs-toggle="modal"
             data-bs-target="#@Constants.ElementIds.REGISTER_TOTP_SECRET_MODAL"
             @onclick="ResetManualRegistrationModalForm">
         Enter manually
     </button>
+
+    <span class="hide-on-narrow-screens unselectable bi bi-clickable @(gridView ? "bi-list-task" : "bi-grid-3x2")"
+          aria-hidden="true"
+          title="Click here to switch between grid view and list view"
+          style="width: 2rem; height: 2rem; cursor: pointer; top: 4.20px; margin-left: -4px;"
+          @onclick="OnClickToggleGridView">
+    </span>
 
 </div>
 
@@ -37,61 +46,65 @@
                OutputMessage="No QR code detected"
                Width="@qrCodeScannerWidth" />
 
-@foreach (TotpConfig totpConfig in userData.Chain)
-{
-    <div class="card stretch-when-narrow mb-3">
+<div class="@(gridView ? "btn-flex" : string.Empty)"
+     style="margin: 0">
 
-        <div class="card-body">
+    @foreach (TotpConfig totpConfig in userData.Chain)
+    {
+        <div class="card stretch-when-narrow @(!gridView ? "mb-3" : string.Empty)">
 
-            <div class="totp-title-label">
+            <div class="card-body">
 
-                <span class="unselectable bi bi-clickable bi-themeable bi-pencil-square"
-                      aria-hidden="true"
-                      title="Click here to edit this TOTP config entry"
-                      style="cursor: pointer; top: 1px;"
-                      data-bs-toggle="modal"
-                      data-bs-target="#@Constants.ElementIds.EDIT_TOTP_CONFIG_MODAL"
-                      @onclick="() => OnClickEditConfig(totpConfig)">
-                </span>
+                <div class="totp-title-label">
 
-                <h4 class="unselectable card-title bi-clickable"
-                    title="@(totpConfig.Issuer.NotNullNotEmpty() ? $"Issuer: {totpConfig.Issuer}" : string.Empty)"
-                    style="cursor: pointer;"
-                    @onclick="() => OnClickCopyTOTP(totpConfig)">
-                    @totpConfig.Name
-                </h4>
+                    <span class="unselectable bi bi-clickable bi-themeable bi-pencil-square"
+                          aria-hidden="true"
+                          title="Click here to edit this TOTP config entry"
+                          style="cursor: pointer; top: 1px;"
+                          data-bs-toggle="modal"
+                          data-bs-target="#@Constants.ElementIds.EDIT_TOTP_CONFIG_MODAL"
+                          @onclick="() => OnClickEditConfig(totpConfig)">
+                    </span>
 
-            </div>
+                    <h4 class="unselectable card-title bi-clickable"
+                        title="@(totpConfig.Issuer.NotNullNotEmpty() ? $"Issuer: {totpConfig.Issuer}" : string.Empty)"
+                        style="cursor: pointer;"
+                        @onclick="() => OnClickCopyTOTP(totpConfig)">
+                        @totpConfig.Name
+                    </h4>
 
-            <h6 class="unselectable card-subtitle mb-2">
-                @totpConfig.Label
-            </h6>
-
-            <p class="card-text">
-
-                <code class="totp-code unselectable"
-                      id="@totpConfig.Id"
-                      style="cursor: pointer;"
-                      @onclick="() => OnClickCopyTOTP(totpConfig)">
-                    @totpConfig.Totp
-                </code>
-
-            </p>
-
-            <div class="progress">
-
-                <div class="progress-bar @(totpConfig.RemainingSeconds < 4 ? "bg-danger" : totpConfig.RemainingSeconds < 8 ? "bg-warning" : string.Empty)"
-                     role="progressbar"
-                     aria-valuemin="0"
-                     aria-valuemax="100"
-                     aria-valuenow="@totpConfig.RemainingLifetimePercentage"
-                     style="width: @(totpConfig.RemainingLifetimePercentage)%; transition-duration: @(totpConfig.RemainingSeconds < 0.25d || totpConfig.RemainingSeconds > ((double)totpConfig.Period - 0.25d) ? "0.00s" : "0.25s");">
                 </div>
 
+                <h6 class="unselectable card-subtitle mb-2">
+                    @totpConfig.Label
+                </h6>
+
+                <p class="card-text">
+
+                    <code class="totp-code unselectable"
+                          id="@totpConfig.Id"
+                          style="cursor: pointer;"
+                          @onclick="() => OnClickCopyTOTP(totpConfig)">
+                        @totpConfig.Totp
+                    </code>
+
+                </p>
+
+                <div class="progress">
+
+                    <div class="progress-bar @(totpConfig.RemainingSeconds < 4 ? "bg-danger" : totpConfig.RemainingSeconds < 8 ? "bg-warning" : string.Empty)"
+                         role="progressbar"
+                         aria-valuemin="0"
+                         aria-valuemax="100"
+                         aria-valuenow="@totpConfig.RemainingLifetimePercentage"
+                         style="width: @(totpConfig.RemainingLifetimePercentage)%; transition-duration: @(totpConfig.RemainingSeconds < 0.25d || totpConfig.RemainingSeconds > ((double)totpConfig.Period - 0.25d) ? "0.00s" : "0.25s");">
+                    </div>
+
+                </div>
             </div>
         </div>
-    </div>
-}
+    }
+</div>
 
 <!-- Manual 2FA registration modal -->
 <div class="modal fade"
@@ -418,7 +431,9 @@
 
 @code {
 
-    private bool registrationReady = false, editReady = false;
+    private bool gridView = true;
+    private bool editReady = false;
+    private bool registrationReady = false;
 
     private TotpConfig? edit = null;
     private QRCodeScannerJsInterop? qrCodeScannerJsInterop;
@@ -432,6 +447,8 @@
         qrCodeScannerJsInterop = new QRCodeScannerJsInterop(JS);
 
         userData = await UserDataService.GetUserData();
+        
+        gridView = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_LOCALSTORAGE_VALUE, Constants.LocalStorageIds.GRID_VIEW, "true") != "false";
 
         for (;;)
         {
@@ -450,7 +467,7 @@
         await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.TOTP_DIGITS_SLIDER, TotpConfig.Empty.Digits);
         await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.TOTP_INTERVAL_SLIDER, TotpConfig.Empty.Period);
         await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE_RADIO_BOX, Constants.ElementIds.TOTP_ALGO_RADIO_BOX, (int)TotpConfig.Empty.Algorithm);
-        
+
         await OnMoveDigitSlider(new ChangeEventArgs { Value = TotpConfig.Empty.Digits });
         await OnMoveIntervalSlider(new ChangeEventArgs { Value = TotpConfig.Empty.Period });
     }
@@ -458,18 +475,18 @@
     private async Task OnMoveDigitSlider(ChangeEventArgs e)
     {
         Console.WriteLine(e.Value);
-        
+
         string label = $"Digits: {e.Value}{(e.Value is 6 or "6" ? " (default)" : string.Empty)}";
-        
+
         await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.TOTP_DIGITS_SLIDER_LABEL, label, true);
     }
 
     private async Task OnMoveIntervalSlider(ChangeEventArgs e)
     {
         Console.WriteLine(e.Value);
-        
+
         string label = $"Interval: {e.Value} second{(e.Value is 1 or "1" ? string.Empty : "s")}{(e.Value is 30 or "30" ? " (default)" : string.Empty)}";
-        
+
         await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.TOTP_INTERVAL_SLIDER_LABEL, label, true);
     }
 
@@ -631,6 +648,13 @@
 
             await JS.InvokeVoidAsync(Constants.InteropFunctionNames.ALERT_DIALOG, "ERROR: Modification attempt failed!");
         }
+    }
+
+    private async Task OnClickToggleGridView()
+    {
+        gridView = !gridView;
+
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_LOCALSTORAGE_VALUE, Constants.LocalStorageIds.GRID_VIEW, gridView);
     }
 
     private async Task CheckManualRegistrationReady()
