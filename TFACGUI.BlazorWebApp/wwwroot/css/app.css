@@ -206,3 +206,11 @@ code {
     font-size: 2.0rem;
     font-family: RobotoBold, monospace;
 }
+
+.totp-code:hover {
+    filter: brightness(80%);
+}
+
+.totp-code:active {
+    filter: brightness(110%);
+}

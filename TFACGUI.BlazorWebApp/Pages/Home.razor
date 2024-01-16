@@ -49,17 +49,17 @@
                       style="cursor: pointer; top: 1px;"
                       @onclick="() => OnClickEditConfig(totpConfig)">
                 </span>
-                
+
                 <h4 class="unselectable card-title bi-clickable"
                     style="cursor: pointer;"
+                    title="Issuer: @totpConfig.Issuer"
                     @onclick="() => OnClickCopyTOTP(totpConfig)">
                     @totpConfig.Name
                 </h4>
-                
+
             </div>
 
-            <h6 class="unselectable card-subtitle mb-2"
-                title="Issuer: @totpConfig.Issuer">
+            <h6 class="unselectable card-subtitle mb-2">
                 @totpConfig.Label
             </h6>
 
@@ -81,7 +81,7 @@
                      aria-valuemin="0"
                      aria-valuemax="100"
                      aria-valuenow="@totpConfig.RemainingLifetimePercentage"
-                     style="width: @(totpConfig.RemainingLifetimePercentage)%;">
+                     style="width: @(totpConfig.RemainingLifetimePercentage)%; transition-duration: @(totpConfig.RemainingSeconds < 0.25d || totpConfig.RemainingSeconds > ((double)totpConfig.Period - 0.25d) ? "0.00s" : "0.25s");">
                 </div>
 
             </div>
@@ -158,6 +158,56 @@
                            autocomplete="off">
                 </div>
 
+                <fieldset class="form-group">
+                    
+                    <label class="form-label mt-2">
+                        Algorithm
+                    </label>
+                    
+                    <div class="form-check">
+                        
+                        <input class="form-check-input"
+                               type="radio"
+                               name="algorithmRadioButtons"
+                               id="algorithmRadioButtons0"
+                               value="option1"
+                               checked="">
+                        
+                        <label class="form-check-label"
+                               for="algorithmRadioButtons0">
+                            SHA-1 (default)
+                        </label>
+                    </div>
+                    
+                    <div class="form-check">
+                        
+                        <input class="form-check-input"
+                               type="radio"
+                               name="algorithmRadioButtons"
+                               id="algorithmRadioButtons1"
+                               value="option2">
+                        
+                        <label class="form-check-label"
+                               for="algorithmRadioButtons1">
+                            SHA-256
+                        </label>
+                    </div>
+                    
+                    <div class="form-check">
+                        
+                        <input class="form-check-input"
+                               type="radio"
+                               name="algorithmRadioButtons"
+                               id="algorithmRadioButtons2"
+                               value="option3">
+                        
+                        <label class="form-check-label"
+                               for="algorithmRadioButtons2">
+                            SHA-512
+                        </label>
+                    </div>
+                </fieldset>
+
                 <br />
 
             </div>
@@ -190,7 +240,7 @@
     private Models.UserData userData = Models.UserData.Empty;
 
     private readonly string qrCodeScannerWidth = "512";
-    private readonly string manualRegistrationDescTooltip = "This is useful for example if your device has no camera to scan the QR code with, or if you want more control over how the entry is going to be labelled inside your TFACGUI chain.\n\nMake sure to enter everything correctly and label everything in an easily recognizable fashion!";
+    private readonly string manualRegistrationDescTooltip = "Manually registering a 2FA secret is useful for example if your device has no camera to scan the QR code with, or if you want more control over how the entry is going to be labelled inside your TFACGUI chain.\n\nMake sure to enter everything correctly and label everything in an easily recognizable fashion!";
 
     protected override async Task OnInitializedAsync()
     {
@@ -202,7 +252,7 @@
         {
             StateHasChanged();
 
-            await Task.Delay(256);
+            await Task.Delay(128);
         }
     }
 
