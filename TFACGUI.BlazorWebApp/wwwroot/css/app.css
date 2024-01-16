@@ -235,3 +235,13 @@ code {
 .card-subtitle {
     letter-spacing: 0.05rem;
 }
+
+@media (max-width: 640px) {
+    .homepage-mainbuttons {
+        margin-top: 0;
+    }
+    
+    .hide-on-mobile {
+        display: none;
+    }
+}

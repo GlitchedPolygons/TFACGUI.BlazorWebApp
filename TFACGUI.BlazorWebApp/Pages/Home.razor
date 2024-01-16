@@ -13,11 +13,11 @@
     TFACGUI
 </PageTitle>
 
-<h1>
+<h1 class="hide-on-mobile">
     TFACGUI
 </h1>
 
-<div class="btn-flex mb-3">
+<div class="btn-flex homepage-mainbuttons mb-3">
 
     <button class="btn btn-success stretch-when-narrow"
             @onclick="OnClickScanTotpSecret">
@@ -98,176 +98,208 @@
      aria-labelledby="@Constants.ElementIds.REGISTER_TOTP_SECRET_MODAL_LABEL"
      aria-hidden="true">
 
-    <div class="modal-dialog">
+<div class="modal-dialog">
 
-        <div class="modal-content">
+<div class="modal-content">
 
-            <div class="modal-header">
+    <div class="modal-header">
 
-                <h5 class="modal-title"
-                    id="@Constants.ElementIds.REGISTER_TOTP_SECRET_MODAL_LABEL">
-                    Manually enter a 2FA secret
-                </h5>
+        <h5 class="modal-title"
+            id="@Constants.ElementIds.REGISTER_TOTP_SECRET_MODAL_LABEL">
+            Manually enter a 2FA secret
+        </h5>
 
-                <button type="button"
-                        class="btn-close"
-                        data-bs-dismiss="modal"
-                        aria-label="Close">
-                </button>
-            </div>
-
-            <div class="modal-body">
-
-                <p>
-                    Manually add a 2FA secret to your TFACGUI chain by compiling the form below.
-                    <span style="cursor: help"
-                          title="@manualRegistrationDescTooltip"
-                          onclick="alert('@manualRegistrationDescTooltip.Replace("\n", "\\n")')">
-                        ❓
-                    </span>
-                </p>
-
-                <div class="form-group">
-
-                    <label for="@Constants.ElementIds.TOTP_CONFIG_ENTRY_NAME"
-                           class="form-label mt-2">
-                        Name
-                    </label>
-
-                    <input type="text"
-                           min="2"
-                           max="32"
-                           class="form-control"
-                           id="@Constants.ElementIds.TOTP_CONFIG_ENTRY_NAME"
-                           placeholder="Enter a recognizable name"
-                           @oninput="CheckManualRegistrationReady"
-                           autocomplete="off">
-                </div>
-
-                <div class="form-group">
-
-                    <label for="@Constants.ElementIds.TOTP_SECRET"
-                           class="form-label mt-2">
-                        2FA Secret
-                    </label>
-
-                    <input type="password"
-                           class="form-control"
-                           id="@Constants.ElementIds.TOTP_SECRET"
-                           placeholder="Base32-encoded TOTP secret"
-                           @oninput="CheckManualRegistrationReady"
-                           onClick="this.select();"
-                           autocomplete="off">
-                </div>
-
-                <fieldset class="form-group">
-
-                    <label class="form-label mt-2"
-                           id="@Constants.ElementIds.TOTP_DIGITS_SLIDER_LABEL"
-                           for="@Constants.ElementIds.TOTP_DIGITS_SLIDER">
-                        Digits: @TotpConfig.Empty.Digits
-                    </label>
-
-                    <input type="range"
-                           class="form-range"
-                           min="1"
-                           max="10"
-                           step="1.0"
-                           value="@TotpConfig.Empty.Digits"
-                           @oninput="OnMoveDigitSlider"
-                           id="@Constants.ElementIds.TOTP_DIGITS_SLIDER">
-                </fieldset>
-
-                <fieldset class="form-group">
-
-                    <label class="form-label mt-2"
-                           id="@Constants.ElementIds.TOTP_INTERVAL_SLIDER_LABEL"
-                           for="@Constants.ElementIds.TOTP_INTERVAL_SLIDER">
-                        Interval: @TotpConfig.Empty.Period seconds
-                    </label>
-
-                    <input type="range"
-                           class="form-range"
-                           min="1"
-                           max="60"
-                           step="1.0"
-                           value="@TotpConfig.Empty.Period"
-                           @oninput="OnMoveIntervalSlider"
-                           id="@Constants.ElementIds.TOTP_INTERVAL_SLIDER">
-                </fieldset>
-
-                <fieldset class="form-group">
-
-                    <label class="form-label mt-2">
-                        Algorithm
-                    </label>
-
-                    <div class="form-check">
-
-                        <input class="form-check-input"
-                               type="radio"
-                               name="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX"
-                               id="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX_BUTTON_SHA1"
-                               value="@((int)OtpHashMode.Sha1)"
-                               checked>
-
-                        <label class="form-check-label"
-                               for="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX_BUTTON_SHA1">
-                            SHA-1 (default)
-                        </label>
-                    </div>
-
-                    <div class="form-check">
-
-                        <input class="form-check-input"
-                               type="radio"
-                               name="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX"
-                               id="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX_BUTTON_SHA256"
-                               value="@((int)OtpHashMode.Sha256)">
-
-                        <label class="form-check-label"
-                               for="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX_BUTTON_SHA256">
-                            SHA-256
-                        </label>
-                    </div>
-
-                    <div class="form-check">
-
-                        <input class="form-check-input"
-                               type="radio"
-                               name="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX"
-                               id="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX_BUTTON_SHA512"
-                               value="@((int)OtpHashMode.Sha512)">
-
-                        <label class="form-check-label"
-                               for="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX_BUTTON_SHA512">
-                            SHA-512
-                        </label>
-                    </div>
-                </fieldset>
-
-                <br />
-
-            </div>
-
-            <div class="modal-footer">
-
-                <button type="button"
-                        class="btn btn-secondary stretch-when-narrow"
-                        data-bs-dismiss="modal">
-                    Cancel
-                </button>
-
-                <button type="button"
-                        data-bs-dismiss="modal"
-                        class="btn btn-success stretch-when-narrow"
-                        disabled="@(!registrationReady)"
-                        @onclick="OnClickEnterManually">
-                    Add
-                </button>
-            </div>
-        </div>
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close">
+        </button>
     </div>
+
+    <div class="modal-body">
+
+        <p>
+            Manually add a 2FA secret to your TFACGUI chain by compiling the form below.
+            <span style="cursor: help"
+                  title="@manualRegistrationDescTooltip"
+                  onclick="alert('@manualRegistrationDescTooltip.Replace("\n", "\\n")')">
+                ❓
+            </span>
+        </p>
+
+        <div class="form-group">
+
+            <label for="@Constants.ElementIds.TOTP_CONFIG_ENTRY_NAME"
+                   class="form-label mt-2">
+                Name
+            </label>
+
+            <input type="text"
+                   minlength="2"
+                   maxlength="32"
+                   class="form-control"
+                   id="@Constants.ElementIds.TOTP_CONFIG_ENTRY_NAME"
+                   placeholder="@("Enter a recognizable name (e.g. \"Google Main Account\")")"
+                   @oninput="CheckManualRegistrationReady"
+                   autocomplete="off">
+        </div>
+
+        <div class="form-group">
+
+            <label for="@Constants.ElementIds.TOTP_ISSUER"
+                   class="form-label mt-2">
+                Issued by
+            </label>
+
+            <input type="text"
+                   maxlength="1024"
+                   class="form-control"
+                   id="@Constants.ElementIds.TOTP_ISSUER"
+                   placeholder="@("Where this 2FA secret comes from (e.g. \"example.com\")")"
+                   @oninput="CheckManualRegistrationReady"
+                   autocomplete="off">
+        </div>
+
+        <div class="form-group">
+
+            <label for="@Constants.ElementIds.TOTP_ISSUED_TO"
+                   class="form-label mt-2">
+                Issued to
+            </label>
+
+            <input type="text"
+                   maxlength="64"
+                   class="form-control"
+                   id="@Constants.ElementIds.TOTP_ISSUED_TO"
+                   placeholder="@("Your account username, user id, email or whatever")"
+                   @oninput="CheckManualRegistrationReady"
+                   autocomplete="off">
+        </div>
+
+        <div class="form-group">
+
+            <label for="@Constants.ElementIds.TOTP_SECRET"
+                   class="form-label mt-2">
+                2FA Secret
+            </label>
+
+            <input type="password"
+                   class="form-control"
+                   id="@Constants.ElementIds.TOTP_SECRET"
+                   placeholder="Base32-encoded TOTP secret key"
+                   @oninput="CheckManualRegistrationReady"
+                   onClick="this.select();"
+                   autocomplete="off">
+        </div>
+
+        <fieldset class="form-group">
+
+            <label class="form-label mt-2"
+                   id="@Constants.ElementIds.TOTP_DIGITS_SLIDER_LABEL"
+                   for="@Constants.ElementIds.TOTP_DIGITS_SLIDER">
+                Digits: @TotpConfig.Empty.Digits
+            </label>
+
+            <input type="range"
+                   class="form-range"
+                   min="1"
+                   max="10"
+                   step="1.0"
+                   value="@TotpConfig.Empty.Digits"
+                   @oninput="OnMoveDigitSlider"
+                   id="@Constants.ElementIds.TOTP_DIGITS_SLIDER">
+        </fieldset>
+
+        <fieldset class="form-group">
+
+            <label class="form-label mt-2"
+                   id="@Constants.ElementIds.TOTP_INTERVAL_SLIDER_LABEL"
+                   for="@Constants.ElementIds.TOTP_INTERVAL_SLIDER">
+                Interval: @TotpConfig.Empty.Period seconds
+            </label>
+
+            <input type="range"
+                   class="form-range"
+                   min="1"
+                   max="60"
+                   step="1.0"
+                   value="@TotpConfig.Empty.Period"
+                   @oninput="OnMoveIntervalSlider"
+                   id="@Constants.ElementIds.TOTP_INTERVAL_SLIDER">
+        </fieldset>
+
+        <fieldset class="form-group">
+
+            <label class="form-label mt-2">
+                Algorithm
+            </label>
+
+            <div class="form-check">
+
+                <input class="form-check-input"
+                       type="radio"
+                       name="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX"
+                       id="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX_BUTTON_SHA1"
+                       value="@((int)OtpHashMode.Sha1)"
+                       checked>
+
+                <label class="form-check-label"
+                       for="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX_BUTTON_SHA1">
+                    SHA-1 (default)
+                </label>
+            </div>
+
+            <div class="form-check">
+
+                <input class="form-check-input"
+                       type="radio"
+                       name="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX"
+                       id="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX_BUTTON_SHA256"
+                       value="@((int)OtpHashMode.Sha256)">
+
+                <label class="form-check-label"
+                       for="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX_BUTTON_SHA256">
+                    SHA-256
+                </label>
+            </div>
+
+            <div class="form-check">
+
+                <input class="form-check-input"
+                       type="radio"
+                       name="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX"
+                       id="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX_BUTTON_SHA512"
+                       value="@((int)OtpHashMode.Sha512)">
+
+                <label class="form-check-label"
+                       for="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX_BUTTON_SHA512">
+                    SHA-512
+                </label>
+            </div>
+        </fieldset>
+
+        <br />
+
+    </div>
+
+    <div class="modal-footer">
+
+        <button type="button"
+                class="btn btn-secondary stretch-when-narrow"
+                data-bs-dismiss="modal">
+            Cancel
+        </button>
+
+        <button type="button"
+                data-bs-dismiss="modal"
+                class="btn btn-success stretch-when-narrow"
+                disabled="@(!registrationReady)"
+                @onclick="OnClickEnterManually">
+            Add
+        </button>
+    </div>
+</div>
+</div>
 </div>
 
 @code {
@@ -298,6 +330,8 @@
     {
         await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.TOTP_CONFIG_ENTRY_NAME, string.Empty);
         await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.TOTP_SECRET, string.Empty);
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.TOTP_ISSUER, string.Empty);
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.TOTP_ISSUED_TO, string.Empty);
         await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.TOTP_DIGITS_SLIDER, TotpConfig.Empty.Digits);
         await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.TOTP_INTERVAL_SLIDER, TotpConfig.Empty.Period);
         await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE_RADIO_BOX, Constants.ElementIds.TOTP_ALGO_RADIO_BOX, (int)TotpConfig.Empty.Algorithm);
@@ -354,6 +388,8 @@
     {
         string totpConfigName = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_INPUT_VALUE, Constants.ElementIds.TOTP_CONFIG_ENTRY_NAME, "(Unnamed)");
 
+        string totpIssuedTo = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_INPUT_VALUE, Constants.ElementIds.TOTP_ISSUED_TO, string.Empty);
+        string totpIssuedBy = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_INPUT_VALUE, Constants.ElementIds.TOTP_ISSUER, string.Empty);
         string totpSecret = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_INPUT_VALUE, Constants.ElementIds.TOTP_SECRET, string.Empty);
         string totpDigits = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_INPUT_VALUE, Constants.ElementIds.TOTP_DIGITS_SLIDER, TotpConfig.Empty.Digits);
         string totpPeriod = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_INPUT_VALUE, Constants.ElementIds.TOTP_INTERVAL_SLIDER, TotpConfig.Empty.Period);
@@ -364,7 +400,7 @@
         try
         {
             byte[] totpSecretBase32Decoded = Base32Encoding.ToBytes(totpSecret);
-            
+
             validBase32 = totpSecretBase32Decoded.NotNullNotEmpty();
         }
         catch
@@ -375,10 +411,10 @@
         if (!validBase32)
         {
             await JS.InvokeVoidAsync(Constants.InteropFunctionNames.ALERT_DIALOG, "ERROR: Invalid 2FA secret. Please enter a valid, Base32-encoded 2FA secret!");
-            
+
             return;
         }
-        
+
         userData.Chain.Add(new TotpConfig
         {
             Name = totpConfigName,
@@ -386,6 +422,8 @@
             Digits = int.TryParse(totpDigits, out int totpDigitsInt) ? totpDigitsInt : TotpConfig.Empty.Digits,
             Period = int.TryParse(totpPeriod, out int totpPeriodInt) ? totpPeriodInt : TotpConfig.Empty.Period,
             Algorithm = int.TryParse(totpAlgo, out int totpAlgoIndex) ? (OtpHashMode)totpAlgoIndex : TotpConfig.Empty.Algorithm,
+            Issuer = totpIssuedBy.NullOrEmpty() ? string.Empty : totpIssuedBy,
+            Label = totpIssuedTo.NotNullNotEmpty() && totpIssuedBy.NotNullNotEmpty() ? $"{totpIssuedTo}:{totpIssuedBy}" : string.Empty
         });
 
         await UserDataService.SetUserData(userData);

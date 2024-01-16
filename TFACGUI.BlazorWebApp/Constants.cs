@@ -23,6 +23,8 @@ public static class Constants
         public const string TOTP_ALGO_RADIO_BOX_BUTTON_SHA256 = "totpAlgorithmRadioBoxButtonSHA256";
         public const string TOTP_ALGO_RADIO_BOX_BUTTON_SHA512 = "totpAlgorithmRadioBoxButtonSHA512";
         public const string TOTP_CONFIG_ENTRY_NAME = "totpConfigEntryName";
+        public const string TOTP_ISSUER = "totpIssuer";
+        public const string TOTP_ISSUED_TO = "totpIssuedTo";
 
         public const string REGISTER_TOTP_SECRET_MODAL = "registerTotpSecretModal";
         public const string REGISTER_TOTP_SECRET_MODAL_LABEL = "registerTotpSecretModalLabel";
