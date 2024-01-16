@@ -26,7 +26,7 @@
 
     <button class="btn btn-success stretch-when-narrow"
             data-bs-toggle="modal"
-            data-bs-target="#registerTotpSecretModal"
+            data-bs-target="#@Constants.ElementIds.REGISTER_TOTP_SECRET_MODAL"
             @onclick="ResetManualRegistrationModalForm">
         Enter manually
     </button>
@@ -47,14 +47,16 @@
 
                 <span class="unselectable bi bi-clickable bi-themeable bi-pencil-square"
                       aria-hidden="true"
-                      title="Click here to edit this TOTP config entry."
+                      title="Click here to edit this TOTP config entry"
                       style="cursor: pointer; top: 1px;"
+                      data-bs-toggle="modal"
+                      data-bs-target="#@Constants.ElementIds.EDIT_TOTP_CONFIG_MODAL"
                       @onclick="() => OnClickEditConfig(totpConfig)">
                 </span>
 
                 <h4 class="unselectable card-title bi-clickable"
+                    title="@(totpConfig.Issuer.NotNullNotEmpty() ? $"Issuer: {totpConfig.Issuer}" : string.Empty)"
                     style="cursor: pointer;"
-                    title="Issuer: @totpConfig.Issuer"
                     @onclick="() => OnClickCopyTOTP(totpConfig)">
                     @totpConfig.Name
                 </h4>
@@ -94,8 +96,8 @@
 <!-- Manual 2FA registration modal -->
 <div class="modal fade"
      id="@Constants.ElementIds.REGISTER_TOTP_SECRET_MODAL"
-     tabindex="-1"
      aria-labelledby="@Constants.ElementIds.REGISTER_TOTP_SECRET_MODAL_LABEL"
+     tabindex="-1"
      aria-hidden="true">
 
 <div class="modal-dialog">
@@ -139,7 +141,7 @@
                    maxlength="32"
                    class="form-control"
                    id="@Constants.ElementIds.TOTP_CONFIG_ENTRY_NAME"
-                   placeholder="@("Enter a recognizable name (e.g. \"Google Main Account\")")"
+                   placeholder="@Constants.Placeholders.TOTP_CONFIG_ENTRY_NAME_PLACEHOLDER"
                    @oninput="CheckManualRegistrationReady"
                    autocomplete="off">
         </div>
@@ -155,7 +157,7 @@
                    maxlength="1024"
                    class="form-control"
                    id="@Constants.ElementIds.TOTP_ISSUER"
-                   placeholder="@("Where this 2FA secret comes from (e.g. \"example.com\")")"
+                   placeholder="@Constants.Placeholders.TOTP_ISSUER_PLACEHOLDER"
                    @oninput="CheckManualRegistrationReady"
                    autocomplete="off">
         </div>
@@ -171,7 +173,7 @@
                    maxlength="64"
                    class="form-control"
                    id="@Constants.ElementIds.TOTP_ISSUED_TO"
-                   placeholder="@("Your account username, user id, email or whatever")"
+                   placeholder="@Constants.Placeholders.TOTP_ISSUED_TO_PLACEHOLDER"
                    @oninput="CheckManualRegistrationReady"
                    autocomplete="off">
         </div>
@@ -186,7 +188,7 @@
             <input type="password"
                    class="form-control"
                    id="@Constants.ElementIds.TOTP_SECRET"
-                   placeholder="Base32-encoded TOTP secret key"
+                   placeholder="@Constants.Placeholders.TOTP_SECRET_PLACEHOLDER"
                    @oninput="CheckManualRegistrationReady"
                    onClick="this.select();"
                    autocomplete="off">
@@ -302,10 +304,123 @@
 </div>
 </div>
 
+<!-- 2FA entry edit modal -->
+<div class="modal fade"
+     id="@Constants.ElementIds.EDIT_TOTP_CONFIG_MODAL"
+     aria-labelledby="@Constants.ElementIds.EDIT_TOTP_CONFIG_MODAL_LABEL"
+     tabindex="-1"
+     aria-hidden="true">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title"
+                    id="@Constants.ElementIds.EDIT_TOTP_CONFIG_MODAL_LABEL">
+                    Modify TFACGUI chain entry
+                </h5>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close">
+                </button>
+            </div>
+
+            <div class="modal-body">
+
+                <p>
+                    You can modify the name and label properties of a TFACGUI chain entry.
+                </p>
+
+                <div class="form-group">
+
+                    <label for="@Constants.ElementIds.EDIT_TOTP_CONFIG_ENTRY_NAME"
+                           class="form-label mt-2">
+                        Name
+                    </label>
+
+                    <input type="text"
+                           minlength="2"
+                           maxlength="32"
+                           class="form-control"
+                           id="@Constants.ElementIds.EDIT_TOTP_CONFIG_ENTRY_NAME"
+                           placeholder="@Constants.Placeholders.TOTP_CONFIG_ENTRY_NAME_PLACEHOLDER"
+                           @oninput="CheckEditReady"
+                           autocomplete="off">
+                </div>
+
+                <div class="form-group">
+
+                    <label for="@Constants.ElementIds.EDIT_TOTP_ISSUER"
+                           class="form-label mt-2">
+                        Issued by
+                    </label>
+
+                    <input type="text"
+                           maxlength="1024"
+                           class="form-control"
+                           id="@Constants.ElementIds.EDIT_TOTP_ISSUER"
+                           placeholder="@Constants.Placeholders.TOTP_ISSUER_PLACEHOLDER"
+                           @oninput="CheckEditReady"
+                           autocomplete="off">
+                </div>
+
+                <div class="form-group">
+
+                    <label for="@Constants.ElementIds.EDIT_TOTP_ISSUED_TO"
+                           class="form-label mt-2">
+                        Issued to
+                    </label>
+
+                    <input type="text"
+                           maxlength="64"
+                           class="form-control"
+                           id="@Constants.ElementIds.EDIT_TOTP_ISSUED_TO"
+                           placeholder="@Constants.Placeholders.TOTP_ISSUED_TO_PLACEHOLDER"
+                           @oninput="CheckEditReady"
+                           autocomplete="off">
+                </div>
+
+                <br />
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button type="button"
+                        @onclick="() => edit = null"
+                        class="btn btn-secondary stretch-when-narrow"
+                        data-bs-dismiss="modal">
+                    Cancel
+                </button>
+
+                <button type="button"
+                        data-bs-dismiss="modal"
+                        @onclick="OnClickDelete"
+                        class="btn btn-danger stretch-when-narrow">
+                    Delete
+                </button>
+
+                <button type="button"
+                        data-bs-dismiss="modal"
+                        class="btn btn-primary stretch-when-narrow"
+                        disabled="@(!editReady)"
+                        @onclick="OnClickSaveModification">
+                    Save
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @code {
 
-    private bool registrationReady = false;
+    private bool registrationReady = false, editReady = false;
 
+    private TotpConfig? edit = null;
     private QRCodeScannerJsInterop? qrCodeScannerJsInterop;
     private Models.UserData userData = Models.UserData.Empty;
 
@@ -335,18 +450,27 @@
         await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.TOTP_DIGITS_SLIDER, TotpConfig.Empty.Digits);
         await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.TOTP_INTERVAL_SLIDER, TotpConfig.Empty.Period);
         await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE_RADIO_BOX, Constants.ElementIds.TOTP_ALGO_RADIO_BOX, (int)TotpConfig.Empty.Algorithm);
+        
         await OnMoveDigitSlider(new ChangeEventArgs { Value = TotpConfig.Empty.Digits });
         await OnMoveIntervalSlider(new ChangeEventArgs { Value = TotpConfig.Empty.Period });
     }
 
     private async Task OnMoveDigitSlider(ChangeEventArgs e)
     {
-        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.TOTP_DIGITS_SLIDER_LABEL, $"Digits: {e.Value}", true);
+        Console.WriteLine(e.Value);
+        
+        string label = $"Digits: {e.Value}{(e.Value is 6 or "6" ? " (default)" : string.Empty)}";
+        
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.TOTP_DIGITS_SLIDER_LABEL, label, true);
     }
 
     private async Task OnMoveIntervalSlider(ChangeEventArgs e)
     {
-        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.TOTP_INTERVAL_SLIDER_LABEL, $"Interval: {e.Value} second{(e.Value is "1" ? string.Empty : "s")}", true);
+        Console.WriteLine(e.Value);
+        
+        string label = $"Interval: {e.Value} second{(e.Value is 1 or "1" ? string.Empty : "s")}{(e.Value is 30 or "30" ? " (default)" : string.Empty)}";
+        
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.TOTP_INTERVAL_SLIDER_LABEL, label, true);
     }
 
     private async Task OnClickCopyTOTP(TotpConfig totpConfig)
@@ -370,7 +494,15 @@
 
     private async Task OnClickEditConfig(TotpConfig config)
     {
-        // TODO: impl.
+        edit = config;
+
+        string[]? labelSplit = edit.Label.NotNullNotEmpty() ? edit.Label.Split(':') : null;
+
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.EDIT_TOTP_CONFIG_ENTRY_NAME, edit.Name);
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.EDIT_TOTP_ISSUER, edit.Issuer);
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.EDIT_TOTP_ISSUED_TO, labelSplit.NotNullNotEmpty() ? labelSplit![0] : string.Empty);
+
+        await CheckEditReady();
     }
 
     private void OnQrCodeScan(string qrCodeContent)
@@ -431,6 +563,76 @@
         StateHasChanged();
     }
 
+    private async Task OnClickDelete()
+    {
+        if (edit is null)
+        {
+            return;
+        }
+
+        bool confirmed = await JS.InvokeAsync<bool>(Constants.InteropFunctionNames.CONFIRM_DIALOG, "Are you sure? Confirming this will irreversibly remove this 2FA config entry from your TFACGUI chain. Are you absolutely sure? Have you backed up your secret key? Consider exporting your TFACGUI chain via the export function before proceeding.");
+
+        if (!confirmed)
+        {
+            return;
+        }
+
+        userData.Chain = userData.Chain.Where(t => t.Id != edit.Id).ToList();
+
+        await UserDataService.SetUserData(userData);
+
+        edit = null;
+    }
+
+    private async Task OnClickSaveModification()
+    {
+        if (edit is null)
+        {
+            return;
+        }
+
+        string newName = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_INPUT_VALUE, Constants.ElementIds.EDIT_TOTP_CONFIG_ENTRY_NAME, string.Empty);
+        string newIssuer = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_INPUT_VALUE, Constants.ElementIds.EDIT_TOTP_ISSUER, string.Empty);
+        string newIssuedTo = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_INPUT_VALUE, Constants.ElementIds.EDIT_TOTP_ISSUED_TO, string.Empty);
+
+        if (newName.NullOrEmpty())
+        {
+            newName = Constants.Placeholders.TOTP_DEFAULT_NAME;
+        }
+
+        try
+        {
+            TotpConfig editedEntry = new()
+            {
+                Name = newName,
+                Issuer = newIssuer,
+                Label = newIssuedTo.NotNullNotEmpty() && newIssuer.NotNullNotEmpty() ? $"{newIssuedTo}:{newIssuer}" : string.Empty,
+                Digits = edit.Digits,
+                Period = edit.Period,
+                Algorithm = edit.Algorithm,
+                TotpSecretKey = edit.TotpSecretKey,
+            };
+
+            int i = userData.Chain.IndexOf(edit);
+
+            userData.Chain = userData.Chain.Where(t => t.Id != edit.Id).ToList();
+
+            userData.Chain.Insert(i, editedEntry);
+
+            await UserDataService.SetUserData(userData);
+
+            edit = null;
+        }
+        catch (Exception e)
+        {
+#if DEBUG
+            Console.WriteLine($"ERROR: Modification attempt failed! Thrown exception: {e.ToString()}");
+#endif
+
+            await JS.InvokeVoidAsync(Constants.InteropFunctionNames.ALERT_DIALOG, "ERROR: Modification attempt failed!");
+        }
+    }
+
     private async Task CheckManualRegistrationReady()
     {
         string totpSecret = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_INPUT_VALUE, Constants.ElementIds.TOTP_SECRET, string.Empty);
@@ -440,6 +642,13 @@
             totpSecret.NotNullNotEmpty()
             &&
             totpConfigEntryName.NotNullNotEmpty();
+    }
+
+    private async Task CheckEditReady()
+    {
+        string totpConfigEntryName = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_INPUT_VALUE, Constants.ElementIds.EDIT_TOTP_CONFIG_ENTRY_NAME, string.Empty);
+
+        editReady = totpConfigEntryName.NotNullNotEmpty();
     }
 
 }

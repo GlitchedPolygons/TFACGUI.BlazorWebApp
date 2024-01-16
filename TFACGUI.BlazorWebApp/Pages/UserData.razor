@@ -105,7 +105,7 @@
 
                 <div class="form-group">
 
-                    <label for="exportPassword"
+                    <label for="@Constants.ElementIds.EXPORT_PW"
                            class="form-label mt-2">
                         Password
                     </label>
@@ -121,7 +121,7 @@
 
                 <div class="form-group">
 
-                    <label for="exportPasswordConfirmation"
+                    <label for="@Constants.ElementIds.EXPORT_PW_CONFIRMATION"
                            class="form-label mt-2">
                         Confirm password
                     </label>
@@ -137,7 +137,7 @@
 
                 <div class="form-group">
 
-                    <label for="encryptionCiphertext"
+                    <label for="@Constants.ElementIds.BACKUP_ENCRYPTION_CIPHERTEXT"
                            class="form-label mt-2">
                         Exported backup
                     </label>
@@ -147,8 +147,8 @@
 
                 <button type="button"
                         style="min-width: 128px;"
-                        id="@Constants.ElementIds.COPY_EXPORTED_BACKUP_BUTTON"
                         class="btn btn-outline-primary mt-2"
+                        id="@Constants.ElementIds.COPY_EXPORTED_BACKUP_BUTTON"
                         @onclick="OnClickCopyEncryptionCiphertext">
                     Copy
                 </button>
@@ -224,7 +224,7 @@
 
                 <div class="form-group">
 
-                    <label for="importPassword"
+                    <label for="@Constants.ElementIds.IMPORT_PW"
                            class="form-label mt-2">
                         Password
                     </label>
@@ -240,7 +240,7 @@
 
                 <div class="form-group">
 
-                    <label for="decryptionCiphertext"
+                    <label for="@Constants.ElementIds.BACKUP_DECRYPTION_CIPHERTEXT"
                            class="form-label mt-2">
                         Backup
                     </label>
@@ -300,13 +300,13 @@
                 ['-', '_', '@', ',', '.', '+', '*', '#']
             );
     }
-    
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             await Task.Delay(64);
-            
+
             await JS.InvokeVoidAsync(Constants.InteropFunctionNames.INIT_COPY_BUTTON_LABEL, Constants.ElementIds.COPY_EXPORTED_BACKUP_BUTTON);
         }
     }
@@ -478,7 +478,7 @@
     private async Task OnClickImport()
     {
         bool success = false;
-        
+
         string decryptionPlaintext = string.Empty;
 
         string decryptionCiphertext = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_INPUT_VALUE, Constants.ElementIds.BACKUP_DECRYPTION_CIPHERTEXT, string.Empty);
@@ -530,7 +530,7 @@
             if (userData is null)
             {
                 decryptionPlaintext = string.Empty;
-                
+
                 await JS.InvokeVoidAsync(Constants.InteropFunctionNames.ALERT_DIALOG, "ERROR: Invalid data format.");
             }
             else
@@ -596,4 +596,5 @@
 
         Navigation.NavigateTo("/", true);
     }
+
 }

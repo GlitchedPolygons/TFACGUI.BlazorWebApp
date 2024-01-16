@@ -28,6 +28,13 @@ public static class Constants
 
         public const string REGISTER_TOTP_SECRET_MODAL = "registerTotpSecretModal";
         public const string REGISTER_TOTP_SECRET_MODAL_LABEL = "registerTotpSecretModalLabel";
+        
+        public const string EDIT_TOTP_CONFIG_MODAL = "editTotpConfigModal";
+        public const string EDIT_TOTP_CONFIG_MODAL_LABEL = "editTotpConfigModalLabel";
+        
+        public const string EDIT_TOTP_ISSUER = "editTotpIssuer";
+        public const string EDIT_TOTP_ISSUED_TO = "editTotpIssuedTo";
+        public const string EDIT_TOTP_CONFIG_ENTRY_NAME = "editTotpConfigEntryName";
     }
 
     public static class LocalStorageIds
@@ -58,6 +65,15 @@ public static class Constants
         public const int MAC_SIZE_BYTES = 16;
         public const int TAG_SIZE_BYTES = 16;
         public const int KEY_SIZE_BYTES = 32;
+    }
+
+    public static class Placeholders
+    {
+        public const string TOTP_DEFAULT_NAME = "(Unnamed)";
+        public const string TOTP_SECRET_PLACEHOLDER = "Base32-encoded TOTP secret key";
+        public const string TOTP_ISSUER_PLACEHOLDER = "Where this 2FA secret comes from (e.g. \"example.com\")";
+        public const string TOTP_ISSUED_TO_PLACEHOLDER = "Your account username, user id, email or whatever";
+        public const string TOTP_CONFIG_ENTRY_NAME_PLACEHOLDER = "Enter a recognizable name (e.g. \"Google Main Account\")";
     }
 
     public static readonly char[] KEYGEN_LEGAL_CHARS =
