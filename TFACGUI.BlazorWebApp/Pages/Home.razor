@@ -188,8 +188,7 @@
                            min="1"
                            max="60"
                            step="1.0"
-                           value="@TotpConfig.Empty.Period"
-                           @oninput="OnChangeManualRegistrationModalIntervalSlider"
+                           @bind="NewTotpConfigInterval"
                            id="@Constants.ElementIds.TOTP_INTERVAL_SLIDER">
                 </fieldset>
 
@@ -277,6 +276,17 @@
     private readonly string qrCodeScannerWidth = "512";
     private readonly string manualRegistrationDescTooltip = "Manually registering a 2FA secret is useful for example if your device has no camera to scan the QR code with, or if you want more control over how the entry is going to be labelled inside your TFACGUI chain.\n\nMake sure to enter everything correctly and label everything in an easily recognizable fashion!";
 
+    protected int newTotpConfigInterval = TotpConfig.Empty.Period;
+    protected int NewTotpConfigInterval
+    {
+        get => newTotpConfigInterval;
+        set
+        {
+            newTotpConfigInterval = value;
+            JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.TOTP_INTERVAL_SLIDER_LABEL, $"Interval: {newTotpConfigInterval}s", true);
+        }
+    }
+    
     protected override async Task OnInitializedAsync()
     {
         qrCodeScannerJsInterop = new QRCodeScannerJsInterop(JS);
@@ -285,24 +295,10 @@
 
         for (;;)
         {
-            await OnChangeManualRegistrationModalIntervalSlider();
-
             StateHasChanged();
 
             await Task.Delay(128);
         }
-    }
-
-    private async Task OnChangeManualRegistrationModalIntervalSlider()
-    {
-        string? period = await JS.InvokeAsync<string?>(Constants.InteropFunctionNames.GET_INPUT_VALUE, Constants.ElementIds.TOTP_INTERVAL_SLIDER, TotpConfig.Empty.Period);
-
-        if (period.NullOrEmpty())
-        {
-            return;
-        }
-
-        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.TOTP_INTERVAL_SLIDER_LABEL, $"Interval: {period}s", true);
     }
 
     private async Task OnClickCopyTOTP(TotpConfig totpConfig)
