@@ -474,6 +474,9 @@
 
 @code {
 
+    private static bool focused = true;
+    private static bool changedFocusedState = false;
+    
     private bool gridView = true;
     private bool editReady = false;
     private bool registrationReady = false;
@@ -495,12 +498,35 @@
 
         for (;;)
         {
+            if (changedFocusedState)
+            {
+                changedFocusedState = false;
+
+                if (focused)
+                {
+                    userData = await UserDataService.GetUserData();
+                }
+            }
+            
             StateHasChanged();
 
-            await Task.Delay(128);
+            await Task.Delay(focused ? 128 : 256);
         }
     }
 
+    [JSInvokable]
+    public static void OnChangeVisibilityState(bool hidden)
+    {
+        if (changedFocusedState)
+        {
+            return;
+        }
+        
+        focused = !hidden;
+
+        changedFocusedState = true;
+    }
+    
     private async Task ResetManualRegistrationModalForm()
     {
         await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.TOTP_CONFIG_ENTRY_NAME, string.Empty);

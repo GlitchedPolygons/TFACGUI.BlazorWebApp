@@ -11,6 +11,7 @@
         <!-- The following two are necessary until Microsoft fixes https://github.com/dotnet/runtime/issues/90710 -->
         <RunAOTCompilation>false</RunAOTCompilation>
         <WasmEnableSIMD>false</WasmEnableSIMD>
+        <ApplicationIcon>wwwroot\favicon.ico</ApplicationIcon>
     </PropertyGroup>
 
     <ItemGroup>

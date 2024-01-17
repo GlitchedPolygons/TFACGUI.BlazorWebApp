@@ -58,9 +58,10 @@ public static class Constants
         public const string GET_LOCALSTORAGE_VALUE = "localStorage.getItem";
         public const string SET_LOCALSTORAGE_VALUE = "localStorage.setItem";
         public const string REMOVE_LOCALSTORAGE_VALUE = "localStorage.removeItem";
-        public const string COPY_TO_CLIPBOARD = "navigator.clipboard.writeText";
         public const string INIT_COPY_BUTTON_LABEL = "InitCopyButtonLabel";
         public const string PRESS_COPY_BUTTON_PORTABLE = "PressCopyButtonPortable";
+        public const string COPY_TO_CLIPBOARD = "navigator.clipboard.writeText";
+        public const string IS_DOCUMENT_HIDDEN = "IsDocumentHidden";
     }
 
     public static class AesGcm
