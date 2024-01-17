@@ -273,3 +273,9 @@ code {
 .modal-footer {
     gap: 8px;
 }
+
+.edit-modal-readonly-pills {
+    gap: 8px;
+    display: flex;
+    margin-top: 10px;
+}

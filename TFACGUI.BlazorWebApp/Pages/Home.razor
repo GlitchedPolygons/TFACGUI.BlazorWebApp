@@ -417,6 +417,29 @@
                            autocomplete="off">
                 </div>
 
+                @if (edit is not null)
+                {
+                    <div class="edit-modal-readonly-pills">
+
+                        <span class="unselectable badge rounded-pill bg-secondary"
+                              title="TOTP hashing algorithm"
+                              style="text-transform: uppercase">
+                            @edit.Algorithm
+                        </span>
+
+                        <span class="unselectable badge rounded-pill bg-secondary"
+                              title="Token length">
+                            @(edit.Digits) digits
+                        </span>
+
+                        <span class="unselectable badge rounded-pill bg-secondary"
+                              title="Interval">
+                            @(edit.Period) second@(edit.Period >= 2 ? "s" : string.Empty)
+                        </span>
+
+                    </div>
+                }
+
                 <br />
 
             </div>
@@ -670,12 +693,12 @@
 
         await AddTotpConfigToChain
         (
-            totpConfigName, 
-            totpSecret, 
-            totpAlgorithm.ToOtpHashMode(), 
-            totpIssuedBy, 
-            totpIssuedTo, 
-            totpDigits, 
+            totpConfigName,
+            totpSecret,
+            totpAlgorithm.ToOtpHashMode(),
+            totpIssuedBy,
+            totpIssuedTo,
+            totpDigits,
             totpPeriod
         );
     }
