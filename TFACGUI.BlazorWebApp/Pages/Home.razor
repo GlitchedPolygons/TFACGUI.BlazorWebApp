@@ -33,12 +33,15 @@
         Enter manually
     </button>
 
-    <span class="hide-on-narrow-screens unselectable bi bi-clickable @(gridView ? "bi-list-task" : "bi-grid-3x2")"
-          aria-hidden="true"
-          title="Click here to switch between grid view and list view"
-          style="width: 2rem; height: 2rem; cursor: pointer; top: 4.20px; margin-left: -4px;"
-          @onclick="OnClickToggleGridView">
-    </span>
+    @if (!userData.IsEmpty)
+    {
+        <span class="hide-on-narrow-screens unselectable bi bi-clickable bi-themeable @(gridView ? "bi-list-task" : "bi-grid-3x2")"
+              aria-hidden="true"
+              title="Click here to switch between grid view and list view"
+              style="width: 2rem; height: 2rem; cursor: pointer; top: 4.20px; margin-left: -4px;"
+              @onclick="OnClickToggleGridView">
+        </span>
+    }
 
 </div>
 
@@ -63,7 +66,8 @@
 
     @foreach (TotpConfig totpConfig in userData.Chain)
     {
-        <div class="card stretch-when-narrow @(!gridView ? "mb-3" : string.Empty)">
+        <div class="card stretch-when-narrow @(!gridView ? "mb-3" : string.Empty)"
+             style="filter: brightness(@totpConfig.CardBrightnessAnimationValue); min-width: @(totpConfig.CardMinWidth);">
 
             <div class="card-body">
 
@@ -508,7 +512,18 @@
 
         await JS.InvokeVoidAsync(Constants.InteropFunctionNames.PRESS_COPY_BUTTON_PORTABLE, totpConfig.Id, "\u2705Copied...", totpConfig.Totp);
 
-        // TODO: animate the card here (something flashy?)
+        totpConfig.CardBrightnessAnimationValue = 1.5f;
+
+        while (totpConfig.CardBrightnessAnimationValue > 1.0f)
+        {
+            totpConfig.CardBrightnessAnimationValue -= 0.0275f;
+
+            await Task.Delay(32);
+
+            StateHasChanged();
+        }
+
+        totpConfig.CardBrightnessAnimationValue = 1.0f;
     }
 
     private async Task OnClickScanTotpSecret()

@@ -27,11 +27,6 @@ public class TotpConfig
     public string Name { get; init; } = string.Empty;
 
     /// <summary>
-    /// User-definable color to associate with this <see cref="TotpConfig"/> entry.
-    /// </summary>
-    public string Color { get; init; } = string.Empty;
-
-    /// <summary>
     /// The label that was encoded into the <c>otpauth://totp/</c> URI (typically, this also describes the <see cref="TotpConfig"/>, just like the user-definable <see cref="Name"/>).<para> </para>
     /// The label is used to identify which account a key is associated with.
     /// </summary>
@@ -61,6 +56,30 @@ public class TotpConfig
     /// Base32-encoded 2FA secret.
     /// </summary>
     public string TotpSecretKey { get; init; } = string.Empty;
+
+    /// <summary>
+    /// Brightness value that animated between the values 150% and 100% on-totp-copy (the fast flashy thingy).
+    /// </summary>
+    [JsonIgnore]
+    public float CardBrightnessAnimationValue { get; set; } = 1.0f;
+
+    /// <summary>
+    /// Minimum width of the card containing this <see cref="TotpConfig"/>'s output.
+    /// </summary>
+    [JsonIgnore]
+    public string CardMinWidth
+    {
+        get
+        {
+            return TotpRaw.Length switch
+            {
+                8 => "252px !important",
+                9 => "324px !important",
+                10 => "396px !important",
+                _ => "20rem !important"
+            };
+        }
+    }
 
     private Totp? totpInstance;
     
@@ -106,8 +125,16 @@ public class TotpConfig
     /// The current TOTP computed by this <see cref="TotpConfig"/>'s 2FA secret and algo parameters, without any spaces or other symbols. Just digits.
     /// </summary>
     [JsonIgnore]
-    public string TotpRaw => totpInstance!.ComputeTotp();
-    
+    public string TotpRaw
+    {
+        get
+        {
+            EnsureTotpInstanceExists();
+            
+            return totpInstance!.ComputeTotp();
+        }
+    }
+
     /// <summary>
     /// The current TOTP computed by this <see cref="TotpConfig"/>'s 2FA secret and algo parameters, nicely formatted and all.
     /// </summary>
