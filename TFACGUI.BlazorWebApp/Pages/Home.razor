@@ -11,6 +11,7 @@
 @using System.Net
 @using System.Web
 @using System.Collections.Specialized
+@using TFACGUI.BlazorWebApp.Extensions
 
 <PageTitle>
     TFACGUI
@@ -274,7 +275,7 @@
                        type="radio"
                        name="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX"
                        id="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX_BUTTON_SHA1"
-                       value="@((int)OtpHashMode.Sha1)"
+                       value="@OtpHashMode.Sha1"
                        checked>
 
                 <label class="form-check-label"
@@ -289,7 +290,7 @@
                        type="radio"
                        name="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX"
                        id="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX_BUTTON_SHA256"
-                       value="@((int)OtpHashMode.Sha256)">
+                       value="@OtpHashMode.Sha256">
 
                 <label class="form-check-label"
                        for="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX_BUTTON_SHA256">
@@ -303,7 +304,7 @@
                        type="radio"
                        name="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX"
                        id="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX_BUTTON_SHA512"
-                       value="@((int)OtpHashMode.Sha512)">
+                       value="@OtpHashMode.Sha512">
 
                 <label class="form-check-label"
                        for="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX_BUTTON_SHA512">
@@ -468,7 +469,7 @@
         userData = await UserDataService.GetUserData();
 
         gridView = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_LOCALSTORAGE_VALUE, Constants.LocalStorageIds.GRID_VIEW, "true") != "false";
-        
+
         for (;;)
         {
             StateHasChanged();
@@ -485,7 +486,7 @@
         await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.TOTP_ISSUED_TO, string.Empty);
         await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.TOTP_DIGITS_SLIDER, TotpConfig.Empty.Digits);
         await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.TOTP_INTERVAL_SLIDER, TotpConfig.Empty.Period);
-        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE_RADIO_BOX, Constants.ElementIds.TOTP_ALGO_RADIO_BOX, (int)TotpConfig.Empty.Algorithm);
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE_RADIO_BOX, Constants.ElementIds.TOTP_ALGO_RADIO_BOX, TotpConfig.Empty.Algorithm.ToString());
 
         await OnMoveDigitSlider(new ChangeEventArgs { Value = TotpConfig.Empty.Digits });
         await OnMoveIntervalSlider(new ChangeEventArgs { Value = TotpConfig.Empty.Period });
@@ -552,38 +553,101 @@
 
     private void OnQrCodeScan(string qrCodeContent)
     {
+        Task.Run(() => OnQrCodeScanAsync(qrCodeContent));
+    }
+
+    private async Task OnQrCodeScanAsync(string qrCodeContent)
+    {
+        bool success = false;
+
+        try
+        {
 #if DEBUG
-        Console.WriteLine($"Scanned QR-Code: \"{qrCodeContent}\"");
+            Console.WriteLine($"Scanned QR-Code: \"{qrCodeContent}\"");
 #endif
 
-        bool success = false;
-        
-        if (qrCodeContent.NullOrEmpty() || !qrCodeContent.StartsWith(Constants.OTP_AUTH_URI_PREFIX))
-        {
-            goto exit;
+            if (qrCodeContent.NullOrEmpty() || !qrCodeContent.StartsWith(Constants.OTP_AUTH_URI_PREFIX))
+            {
+                goto exit;
+            }
+
+            string[] uriSplit = qrCodeContent[Constants.OTP_AUTH_URI_PREFIX.Length..].Split('?');
+
+            if (uriSplit.NullOrEmpty() || uriSplit.Length != 2)
+            {
+                goto exit;
+            }
+
+            NameValueCollection query = HttpUtility.ParseQueryString(uriSplit[1]);
+
+            string totpSecretKey = query.Get("secret") ?? string.Empty;
+
+            if (totpSecretKey.NullOrEmpty() || !totpSecretKey.IsValidBase32())
+            {
+                goto exit;
+            }
+
+            string totpLabel = WebUtility.UrlDecode(uriSplit[0]);
+            string totpName = string.Empty;
+            string totpIssuedTo = string.Empty;
+            string totpIssuer = query.Get("issuer") ?? string.Empty;
+            string totpPeriod = query.Get("period") ?? TotpConfig.Empty.Period.ToString();
+            string totpDigits = query.Get("digits") ?? TotpConfig.Empty.Digits.ToString();
+            string totpAlgorithm = query.Get("algorithm") ?? TotpConfig.Empty.Algorithm.ToString();
+
+            if (totpLabel.NullOrEmpty())
+            {
+                totpLabel = Constants.Placeholders.TOTP_DEFAULT_NAME;
+            }
+
+            string[] labelSplit = totpLabel.Split(':');
+
+            if (labelSplit.NullOrEmpty())
+            {
+                labelSplit = [totpLabel];
+            }
+
+            if (labelSplit.Length >= 2)
+            {
+                if (totpIssuer.NullOrEmpty())
+                {
+                    totpIssuer = labelSplit[0];
+                }
+
+                totpName = labelSplit[0];
+
+                totpIssuedTo = labelSplit[1];
+            }
+            else
+            {
+                totpName = labelSplit[0];
+            }
+
+            success = await AddTotpConfigToChain(totpName, totpSecretKey, totpAlgorithm.ToOtpHashMode(), totpIssuer, totpIssuedTo, totpDigits, totpPeriod);
         }
-
-        string[] split = qrCodeContent[Constants.OTP_AUTH_URI_PREFIX.Length..].Split('?');
-
-        if (split.NullOrEmpty() || split.Length != 2)
+        catch (Exception e)
         {
-            goto exit;
+#if DEBUG
+            Console.WriteLine($"ERROR: Insertion of {nameof(TotpConfig)} entry into the TFACGUI chain failed. Thrown exception: {e.ToString()}");
+#endif
+            success = false;
         }
-
-        string label = WebUtility.UrlDecode(split[0]);
-        
-        NameValueCollection query = HttpUtility.ParseQueryString(split[1]);
-        
-        // TODO: show dialog here and handle otp auth url params!
 
         exit:
 
-        if (!success)
+        if (success)
         {
-            JS.InvokeVoidAsync(Constants.InteropFunctionNames.ALERT_DIALOG, "ERROR: Invalid QR code format!").GetAwaiter().GetResult();
+            // TODO: show success dialog (or toast?) here
         }
-        
-        qrCodeScannerJsInterop?.StopRecording().GetAwaiter().GetResult();
+        else
+        {
+            await JS.InvokeVoidAsync(Constants.InteropFunctionNames.ALERT_DIALOG, "ERROR: Invalid QR code format!");
+        }
+
+        if (qrCodeScannerJsInterop is not null)
+        {
+            await qrCodeScannerJsInterop.StopRecording();
+        }
     }
 
     private async Task OnClickEnterManually()
@@ -595,42 +659,57 @@
         string totpSecret = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_INPUT_VALUE, Constants.ElementIds.TOTP_SECRET, string.Empty);
         string totpDigits = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_INPUT_VALUE, Constants.ElementIds.TOTP_DIGITS_SLIDER, TotpConfig.Empty.Digits);
         string totpPeriod = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_INPUT_VALUE, Constants.ElementIds.TOTP_INTERVAL_SLIDER, TotpConfig.Empty.Period);
-        string totpAlgo = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_INPUT_VALUE_RADIO_BOX, Constants.ElementIds.TOTP_ALGO_RADIO_BOX, (int)TotpConfig.Empty.Algorithm);
+        string totpAlgorithm = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_INPUT_VALUE_RADIO_BOX, Constants.ElementIds.TOTP_ALGO_RADIO_BOX, TotpConfig.Empty.Algorithm);
 
-        bool validBase32;
-
-        try
-        {
-            byte[] totpSecretBase32Decoded = Base32Encoding.ToBytes(totpSecret);
-
-            validBase32 = totpSecretBase32Decoded.NotNullNotEmpty();
-        }
-        catch
-        {
-            validBase32 = false;
-        }
-
-        if (!validBase32)
+        if (!totpSecret.IsValidBase32())
         {
             await JS.InvokeVoidAsync(Constants.InteropFunctionNames.ALERT_DIALOG, "ERROR: Invalid 2FA secret. Please enter a valid, Base32-encoded 2FA secret!");
 
             return;
         }
 
-        userData.Chain.Add(new TotpConfig
+        await AddTotpConfigToChain
+        (
+            totpConfigName, 
+            totpSecret, 
+            totpAlgorithm.ToOtpHashMode(), 
+            totpIssuedBy, 
+            totpIssuedTo, 
+            totpDigits, 
+            totpPeriod
+        );
+    }
+
+    private async Task<bool> AddTotpConfigToChain(string name, string totpSecretKey, OtpHashMode algorithm, string issuer, string issuedTo, string digits, string period)
+    {
+        try
         {
-            Name = totpConfigName,
-            TotpSecretKey = totpSecret,
-            Digits = int.TryParse(totpDigits, out int totpDigitsInt) ? totpDigitsInt : TotpConfig.Empty.Digits,
-            Period = int.TryParse(totpPeriod, out int totpPeriodInt) ? totpPeriodInt : TotpConfig.Empty.Period,
-            Algorithm = int.TryParse(totpAlgo, out int totpAlgoIndex) ? (OtpHashMode)totpAlgoIndex : TotpConfig.Empty.Algorithm,
-            Issuer = totpIssuedBy.NullOrEmpty() ? string.Empty : totpIssuedBy,
-            IssuedTo = totpIssuedTo.NullOrEmpty() ? string.Empty : totpIssuedTo
-        });
+            userData.Chain.Add(new TotpConfig
+            {
+                Name = name,
+                Algorithm = algorithm,
+                TotpSecretKey = totpSecretKey,
+                Issuer = issuer.NullOrEmpty() ? string.Empty : issuer,
+                IssuedTo = issuedTo.NullOrEmpty() ? string.Empty : issuedTo,
+                Digits = int.TryParse(digits, out int totpDigitsInt) ? totpDigitsInt : TotpConfig.Empty.Digits,
+                Period = int.TryParse(period, out int totpPeriodInt) ? totpPeriodInt : TotpConfig.Empty.Period,
+            });
 
-        await UserDataService.SetUserData(userData);
+            await UserDataService.SetUserData(userData);
 
-        StateHasChanged();
+            StateHasChanged();
+
+            return true;
+        }
+        catch (Exception e)
+        {
+#if DEBUG
+            Console.WriteLine($"ERROR: Insertion of TOTP config entry into TFACGUI chain failed! Thrown exception: {e.ToString()}");
+#endif
+            await JS.InvokeVoidAsync(Constants.InteropFunctionNames.ALERT_DIALOG, "ERROR: Insertion of TOTP config entry into TFACGUI chain failed. Please ensure format and parameter validity!");
+
+            return false;
+        }
     }
 
     private async Task OnClickDelete()

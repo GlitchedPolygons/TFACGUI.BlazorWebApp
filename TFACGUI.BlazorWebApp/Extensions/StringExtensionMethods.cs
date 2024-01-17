@@ -1,4 +1,5 @@
-﻿using OtpNet;
+﻿using GlitchedPolygons.ExtensionMethods;
+using OtpNet;
 
 namespace TFACGUI.BlazorWebApp.Extensions;
 
@@ -24,6 +25,20 @@ public static class StringExtensionMethods
             {
                 return OtpHashMode.Sha512;
             }
+        }
+    }
+
+    public static bool IsValidBase32(this string base32)
+    {
+        try
+        {
+            byte[] totpSecretBase32Decoded = Base32Encoding.ToBytes(base32);
+
+            return totpSecretBase32Decoded.NotNullNotEmpty();
+        }
+        catch
+        {
+            return false;
         }
     }
 }
