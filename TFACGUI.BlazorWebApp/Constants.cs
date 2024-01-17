@@ -2,6 +2,8 @@
 
 public static class Constants
 {
+    public const string OTP_AUTH_URI_PREFIX = "otpauth://totp/";
+
     public static class ElementIds
     {
         public const string IMPORT_PW = "importPassword";

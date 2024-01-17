@@ -9,6 +9,8 @@
 @using GlitchedPolygons.ExtensionMethods
 @using OtpNet
 @using System.Net
+@using System.Web
+@using System.Collections.Specialized
 
 <PageTitle>
     TFACGUI
@@ -553,9 +555,34 @@
 #if DEBUG
         Console.WriteLine($"Scanned QR-Code: \"{qrCodeContent}\"");
 #endif
-        
-        // TODO: show dialog here and handle otp auth url!
 
+        bool success = false;
+        
+        if (qrCodeContent.NullOrEmpty() || !qrCodeContent.StartsWith(Constants.OTP_AUTH_URI_PREFIX))
+        {
+            goto exit;
+        }
+
+        string[] split = qrCodeContent[Constants.OTP_AUTH_URI_PREFIX.Length..].Split('?');
+
+        if (split.NullOrEmpty() || split.Length != 2)
+        {
+            goto exit;
+        }
+
+        string label = WebUtility.UrlDecode(split[0]);
+        
+        NameValueCollection query = HttpUtility.ParseQueryString(split[1]);
+        
+        // TODO: show dialog here and handle otp auth url params!
+
+        exit:
+
+        if (!success)
+        {
+            JS.InvokeVoidAsync(Constants.InteropFunctionNames.ALERT_DIALOG, "ERROR: Invalid QR code format!").GetAwaiter().GetResult();
+        }
+        
         qrCodeScannerJsInterop?.StopRecording().GetAwaiter().GetResult();
     }
 
