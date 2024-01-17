@@ -19,6 +19,10 @@ a, .btn-link {
     color: #0071c1;
 }
 
+.accordion {
+    max-width: 1337px;
+}
+
 .stretch-when-narrow {}
 
 @media (max-width: 1024px) {
@@ -180,7 +184,7 @@ code {
 .btn-flex {
     display: flex; 
     flex-wrap: wrap; 
-    gap: 12px; 
+    gap: 16px; 
     margin-top: 1.5rem; 
     margin-bottom: 64px;
 }
@@ -252,4 +256,8 @@ code {
     .hide-on-narrow-screens {
         display: none !important;
     }
+}
+
+.modal-footer {
+    gap: 8px;
 }

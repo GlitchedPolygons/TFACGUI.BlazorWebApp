@@ -23,6 +23,8 @@
     Import / export
 </h1>
 
+<br />
+
 <p>
     It is important to backup your 2FA secrets periodically and store them somewhere safe.
 </p>
@@ -147,7 +149,7 @@
 
                 <button type="button"
                         style="min-width: 128px;"
-                        class="btn btn-outline-primary mt-2"
+                        class="btn btn-outline-primary mt-2 mb-1"
                         id="@Constants.ElementIds.COPY_EXPORTED_BACKUP_BUTTON"
                         @onclick="OnClickCopyEncryptionCiphertext">
                     Copy
@@ -591,8 +593,10 @@
         {
             return;
         }
-
-        await UserDataService.SetUserDataPlaintext(string.Empty);
+        
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.REMOVE_LOCALSTORAGE_VALUE, Constants.LocalStorageIds.USER_DATA);
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.REMOVE_LOCALSTORAGE_VALUE, Constants.LocalStorageIds.GRID_VIEW);
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.REMOVE_LOCALSTORAGE_VALUE, Constants.LocalStorageIds.DARK_THEME);
 
         Navigation.NavigateTo("/", true);
     }

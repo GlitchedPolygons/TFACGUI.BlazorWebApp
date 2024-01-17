@@ -49,6 +49,18 @@
 <div class="@(gridView ? "btn-flex" : string.Empty)"
      style="margin: 0">
 
+    @if (userData.IsEmpty)
+    {
+        <p>
+            <br />
+            <i>
+                This is your TFACGUI chain.<br /><br />
+                Your 2FA tokens will be displayed here, ready to be copied to your system's clipboard.<br /><br />
+                Get started now by adding a new 2FA secret to your chain with one of the two registration methods above! Cheers, stay safe and I hope you like this software :)
+            </i>
+        </p>
+    }
+
     @foreach (TotpConfig totpConfig in userData.Chain)
     {
         <div class="card stretch-when-narrow @(!gridView ? "mb-3" : string.Empty)">
@@ -447,7 +459,7 @@
         qrCodeScannerJsInterop = new QRCodeScannerJsInterop(JS);
 
         userData = await UserDataService.GetUserData();
-        
+
         gridView = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_LOCALSTORAGE_VALUE, Constants.LocalStorageIds.GRID_VIEW, "true") != "false";
 
         for (;;)
