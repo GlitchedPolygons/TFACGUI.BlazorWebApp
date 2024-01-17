@@ -266,6 +266,10 @@ code {
     }
 }
 
+.card-title:focus {
+    filter: brightness(1.0);
+}
+
 .modal-footer {
     gap: 8px;
 }
