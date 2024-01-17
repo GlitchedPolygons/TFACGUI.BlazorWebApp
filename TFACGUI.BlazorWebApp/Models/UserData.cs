@@ -1,4 +1,5 @@
-﻿using GlitchedPolygons.ExtensionMethods;
+﻿using System.Text.Json.Serialization;
+using GlitchedPolygons.ExtensionMethods;
 
 namespace TFACGUI.BlazorWebApp.Models;
 
@@ -15,6 +16,7 @@ public class UserData
     /// <summary>
     /// Checks whether the <see cref="UserData"/> is empty ("fresh") or not.
     /// </summary>
+    [JsonIgnore]
     public bool IsEmpty => Chain.NullOrEmpty();
     
     /// <summary>

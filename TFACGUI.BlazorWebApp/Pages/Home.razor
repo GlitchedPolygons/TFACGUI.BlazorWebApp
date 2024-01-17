@@ -8,6 +8,7 @@
 @using TFACGUI.BlazorWebApp.Services
 @using GlitchedPolygons.ExtensionMethods
 @using OtpNet
+@using System.Net
 
 <PageTitle>
     TFACGUI
@@ -466,6 +467,8 @@
 
         gridView = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_LOCALSTORAGE_VALUE, Constants.LocalStorageIds.GRID_VIEW, "true") != "false";
 
+        Console.WriteLine(WebUtility.UrlDecode("otpauth://totp/ACME%20Co%3Ajohn.doe@email.com?secret=HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ&issuer=ACME%20Co&algorithm=SHA1&digits=6&period=30"));
+        
         for (;;)
         {
             StateHasChanged();
@@ -540,11 +543,9 @@
     {
         edit = config;
 
-        string[]? labelSplit = edit.Label.NotNullNotEmpty() ? edit.Label.Split(':') : null;
-
         await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.EDIT_TOTP_CONFIG_ENTRY_NAME, edit.Name);
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.EDIT_TOTP_ISSUED_TO, edit.IssuedTo);
         await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.EDIT_TOTP_ISSUER, edit.Issuer);
-        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.EDIT_TOTP_ISSUED_TO, labelSplit.NotNullNotEmpty() ? labelSplit![0] : string.Empty);
 
         await CheckEditReady();
     }
@@ -554,7 +555,7 @@
 #if DEBUG
         Console.WriteLine($"Scanned QR-Code: \"{qrCodeContent}\"");
 #endif
-
+        
         // TODO: show dialog here and handle otp auth url!
 
         qrCodeScannerJsInterop?.StopRecording().GetAwaiter().GetResult();
@@ -599,7 +600,7 @@
             Period = int.TryParse(totpPeriod, out int totpPeriodInt) ? totpPeriodInt : TotpConfig.Empty.Period,
             Algorithm = int.TryParse(totpAlgo, out int totpAlgoIndex) ? (OtpHashMode)totpAlgoIndex : TotpConfig.Empty.Algorithm,
             Issuer = totpIssuedBy.NullOrEmpty() ? string.Empty : totpIssuedBy,
-            Label = totpIssuedTo.NotNullNotEmpty() && totpIssuedBy.NotNullNotEmpty() ? $"{totpIssuedTo}:{totpIssuedBy}" : string.Empty
+            IssuedTo = totpIssuedTo.NullOrEmpty() ? string.Empty : totpIssuedTo
         });
 
         await UserDataService.SetUserData(userData);
@@ -650,7 +651,7 @@
             {
                 Name = newName,
                 Issuer = newIssuer,
-                Label = newIssuedTo.NotNullNotEmpty() && newIssuer.NotNullNotEmpty() ? $"{newIssuedTo}:{newIssuer}" : string.Empty,
+                IssuedTo = newIssuedTo,
                 Digits = edit.Digits,
                 Period = edit.Period,
                 Algorithm = edit.Algorithm,
