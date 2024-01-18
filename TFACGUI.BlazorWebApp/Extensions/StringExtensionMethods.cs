@@ -32,7 +32,7 @@ public static class StringExtensionMethods
     {
         try
         {
-            byte[] totpSecretBase32Decoded = Base32Encoding.ToBytes(base32);
+            byte[] totpSecretBase32Decoded = Base32Encoding.ToBytes(base32.Replace(" ", string.Empty));
 
             return totpSecretBase32Decoded.NotNullNotEmpty();
         }
