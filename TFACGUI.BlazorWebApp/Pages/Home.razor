@@ -62,11 +62,11 @@
 </div>
 
 <div class="qr-scanner">
-    
+
     <QRCodeScanner LoadingMessage=""
                    OutputMessage="No QR code detected"
                    Width="@qrCodeScannerWidth" />
-    
+
 </div>
 
 <div class="@(gridView ? "btn-flex" : string.Empty)"
@@ -488,6 +488,31 @@
     </div>
 </div>
 
+<!-- Entry added successfully toast -->
+<div class="toast stretch-when-narrow"
+     id="@Constants.ElementIds.REGISTER_TOTP_SUCCESSFUL"
+     role="alert"
+     aria-live="assertive"
+     aria-atomic="true">
+    
+    <div class="toast-header">
+
+        <strong class="me-auto">✅ 2FA Secret registered successfully</strong>
+
+        <button type="button"
+                class="btn-close ms-2 mb-1"
+                data-bs-dismiss="toast"
+                aria-label="Close">
+            <span aria-hidden="true"></span>
+        </button>
+
+    </div>
+
+    <div class="toast-body">
+        Your 2FA secret has been added to the TFACGUI chain.
+    </div>
+</div>
+
 @code {
 
     private static bool focused = true;
@@ -504,7 +529,7 @@
     private Models.UserData userData = Models.UserData.Empty;
 
     private string qrCodeScannerWidth = "90%";
-    
+
     private readonly string manualRegistrationDescTooltip = "Manually registering a 2FA secret is useful for example if your device has no camera to scan the QR code with, or if you want more control over how the entry is going to be labelled inside your TFACGUI chain.\n\nMake sure to enter everything correctly and label everything in an easily recognizable fashion!";
 
     protected override async Task OnInitializedAsync()
@@ -562,8 +587,6 @@
 
     private async Task OnMoveDigitSlider(ChangeEventArgs e)
     {
-        Console.WriteLine(e.Value);
-
         string label = $"Digits: {e.Value}{(e.Value is 6 or "6" ? " (default)" : string.Empty)}";
 
         await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.TOTP_DIGITS_SLIDER_LABEL, label, true);
@@ -571,8 +594,6 @@
 
     private async Task OnMoveIntervalSlider(ChangeEventArgs e)
     {
-        Console.WriteLine(e.Value);
-
         string label = $"Interval: {e.Value} second{(e.Value is 1 or "1" ? string.Empty : "s")}{(e.Value is 30 or "30" ? " (default)" : string.Empty)}";
 
         await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.TOTP_INTERVAL_SLIDER_LABEL, label, true);
@@ -608,7 +629,7 @@
         int w = await JS.InvokeAsync<int>(Constants.InteropFunctionNames.GET_WINDOW_INNER_WIDTH);
 
         qrCodeScannerWidth = w > 1024 ? "512" : "90%";
-        
+
         StateHasChanged();
 
         await qrCodeScannerJsInterop.Init(OnQrCodeScan);
@@ -744,7 +765,7 @@
         {
             await qrCodeScannerJsInterop.StopRecording();
         }
-        
+
         await Task.Delay(1024);
 
         startScanButtonThrottle = false;

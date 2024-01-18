@@ -448,3 +448,12 @@ code {
 .bi-clickable:active {
     filter: brightness(95%);
 }
+
+.toast {
+    background-color: rgb(26 26 26);
+}
+
+.toast-header {
+    color: white;
+    background-color: rgb(35 35 35);
+}

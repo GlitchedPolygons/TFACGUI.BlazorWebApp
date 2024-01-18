@@ -30,6 +30,7 @@ public static class Constants
 
         public const string REGISTER_TOTP_SECRET_MODAL = "registerTotpSecretModal";
         public const string REGISTER_TOTP_SECRET_MODAL_LABEL = "registerTotpSecretModalLabel";
+        public const string REGISTER_TOTP_SUCCESSFUL = "totpConfigRegistrationSuccessful";
         
         public const string EDIT_TOTP_CONFIG_MODAL = "editTotpConfigModal";
         public const string EDIT_TOTP_CONFIG_MODAL_LABEL = "editTotpConfigModalLabel";
