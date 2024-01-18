@@ -813,7 +813,7 @@
             {
                 Name = name,
                 Algorithm = algorithm,
-                TotpSecretKey = totpSecretKey,
+                TotpSecretKey = totpSecretKey.Replace(" ", string.Empty),
                 Issuer = issuer.NullOrEmpty() ? string.Empty : issuer,
                 IssuedTo = issuedTo.NullOrEmpty() ? string.Empty : issuedTo,
                 Digits = int.TryParse(digits, out int totpDigitsInt) ? totpDigitsInt : TotpConfig.Empty.Digits,
