@@ -279,3 +279,18 @@ code {
     display: flex;
     margin-top: 10px;
 }
+
+@media (min-width: 1024px) {
+    .qr-scanner {
+        margin-bottom: 12px;
+    }
+}
+
+@media (max-width: 1024px){
+    .qr-scanner {
+        margin-top: 24px;
+        margin-bottom: 14px;
+        display: flex;
+        justify-content: center;
+    }
+}

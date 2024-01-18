@@ -23,11 +23,23 @@
 
 <div class="btn-flex homepage-mainbuttons mb-3">
 
-    <button type="button"
-            class="btn btn-success stretch-when-narrow"
-            @onclick="OnClickScanTotpSecret">
-        Scan QR
-    </button>
+    @if (scanning)
+    {
+        <button type="button"
+                class="btn btn-danger stretch-when-narrow"
+                @onclick="OnClickCancelScan">
+            Cancel scan
+        </button>
+    }
+    else
+    {
+        <button type="button"
+                disabled="@startScanButtonThrottle"
+                class="btn btn-success stretch-when-narrow"
+                @onclick="OnClickScanTotpSecret">
+            Scan QR
+        </button>
+    }
 
     <button type="button"
             class="btn btn-success stretch-when-narrow"
@@ -49,9 +61,13 @@
 
 </div>
 
-<QRCodeScanner LoadingMessage=""
-               OutputMessage="No QR code detected"
-               Width="@qrCodeScannerWidth" />
+<div class="qr-scanner">
+    
+    <QRCodeScanner LoadingMessage=""
+                   OutputMessage="No QR code detected"
+                   Width="@qrCodeScannerWidth" />
+    
+</div>
 
 <div class="@(gridView ? "btn-flex" : string.Empty)"
      style="margin: 0">
@@ -476,16 +492,19 @@
 
     private static bool focused = true;
     private static bool changedFocusedState = false;
-    
+
     private bool gridView = true;
+    private bool scanning = false;
     private bool editReady = false;
     private bool registrationReady = false;
+    private bool startScanButtonThrottle = false;
 
     private TotpConfig? edit = null;
     private QRCodeScannerJsInterop? qrCodeScannerJsInterop;
     private Models.UserData userData = Models.UserData.Empty;
 
-    private readonly string qrCodeScannerWidth = "512";
+    private string qrCodeScannerWidth = "90%";
+    
     private readonly string manualRegistrationDescTooltip = "Manually registering a 2FA secret is useful for example if your device has no camera to scan the QR code with, or if you want more control over how the entry is going to be labelled inside your TFACGUI chain.\n\nMake sure to enter everything correctly and label everything in an easily recognizable fashion!";
 
     protected override async Task OnInitializedAsync()
@@ -507,7 +526,7 @@
                     userData = await UserDataService.GetUserData();
                 }
             }
-            
+
             StateHasChanged();
 
             await Task.Delay(focused ? 128 : 256);
@@ -521,12 +540,12 @@
         {
             return;
         }
-        
+
         focused = !hidden;
 
         changedFocusedState = true;
     }
-    
+
     private async Task ResetManualRegistrationModalForm()
     {
         await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.TOTP_CONFIG_ENTRY_NAME, string.Empty);
@@ -581,12 +600,38 @@
 
     private async Task OnClickScanTotpSecret()
     {
-        if (qrCodeScannerJsInterop is null)
+        if (qrCodeScannerJsInterop is null || scanning)
         {
             return;
         }
 
+        int w = await JS.InvokeAsync<int>(Constants.InteropFunctionNames.GET_WINDOW_INNER_WIDTH);
+
+        qrCodeScannerWidth = w > 1024 ? "512" : "90%";
+        
+        StateHasChanged();
+
         await qrCodeScannerJsInterop.Init(OnQrCodeScan);
+
+        scanning = true;
+
+        startScanButtonThrottle = true;
+    }
+
+    private async Task OnClickCancelScan()
+    {
+        if (qrCodeScannerJsInterop is null || !scanning)
+        {
+            return;
+        }
+
+        await qrCodeScannerJsInterop.StopRecording();
+
+        scanning = false;
+
+        await Task.Delay(1024);
+
+        startScanButtonThrottle = false;
     }
 
     private async Task OnClickEditConfig(TotpConfig config)
@@ -693,10 +738,16 @@
             await JS.InvokeVoidAsync(Constants.InteropFunctionNames.ALERT_DIALOG, "ERROR: Invalid QR code format!");
         }
 
+        scanning = false;
+
         if (qrCodeScannerJsInterop is not null)
         {
             await qrCodeScannerJsInterop.StopRecording();
         }
+        
+        await Task.Delay(1024);
+
+        startScanButtonThrottle = false;
     }
 
     private async Task OnClickEnterManually()

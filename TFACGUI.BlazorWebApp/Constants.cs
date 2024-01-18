@@ -62,6 +62,8 @@ public static class Constants
         public const string PRESS_COPY_BUTTON_PORTABLE = "PressCopyButtonPortable";
         public const string COPY_TO_CLIPBOARD = "navigator.clipboard.writeText";
         public const string IS_DOCUMENT_HIDDEN = "IsDocumentHidden";
+        public const string GET_WINDOW_INNER_WIDTH = "GetWindowInnerWidth";
+        public const string GET_WINDOW_INNER_HEIGHT = "GetWindowInnerHeight";
     }
 
     public static class AesGcm
