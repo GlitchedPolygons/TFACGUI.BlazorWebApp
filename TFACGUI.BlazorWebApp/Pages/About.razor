@@ -11,189 +11,241 @@
 <div class="accordion mt-4"
      id="accordion">
 
-    <div class="accordion-item">
+<div class="accordion-item">
 
-        <h2 class="accordion-header"
-            id="headingZero">
+    <h2 class="accordion-header"
+        id="headingZero">
 
-            <button class="accordion-button collapsed"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#collapseZero"
-                    aria-expanded="false"
-                    aria-controls="collapseZero">
-                <span class="unselectable bi bi-themeable bi-shield-shaded"
-                      aria-hidden="true">
-                </span> Two-Factor Authentication
-            </button>
+        <button class="accordion-button collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#collapseZero"
+                aria-expanded="false"
+                aria-controls="collapseZero">
+            <span class="unselectable bi bi-themeable bi-shield-shaded"
+                  aria-hidden="true">
+            </span> Two-Factor Authentication
+        </button>
 
-        </h2>
+    </h2>
 
-        <div id="collapseZero"
-             class="accordion-collapse collapse"
-             aria-labelledby="headingZero"
-             data-bs-parent="#accordion">
+    <div id="collapseZero"
+         class="accordion-collapse collapse"
+         aria-labelledby="headingZero"
+         data-bs-parent="#accordion">
 
-            <div class="accordion-body">
+        <div class="accordion-body">
 
+            <h4>
+                Intro
+            </h4>
+            <p>
+                2FA is an additional security mechanism in the process of authentication.<br />
+                Authenticating means providing proof of identity.<br />
+                In the digital world, this mostly relates to you, entering your credentials into some website or online resource, in the attempt to access it and use it in some way.
+            </p>
 
-            </div>
-        </div>
-    </div>
+            <h4 class="mt-4">
+                Disambiguation
+            </h4>
+            <p>
+                Please note that <i>authentication</i> is not synonymous with <i>authorization</i>; they're not the same thing!<br />
+                One must authenticate before being authorized: just because you can prove that you are you, doesn't mean that you are allowed to do whatever you're doing ;)<br />
+                Hence the two HTTP error codes <code>401</code> (
+                <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401"
+                   target="_blank">
+                    unauthorized
+                </a>, aka "we don't know who you are") and <code>403</code> (
+                <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403"
+                   target="_blank">
+                    forbidden
+                </a>, aka "we know exactly who you are, but GTFO!").
+            </p>
 
-    <div class="accordion-item">
+            <h4 class="mt-4">
+                Historical context
+            </h4>
+            <p>
+                Traditionally, people would log into websites, apps and whatnot using only one auth factor: the password. There are many possible means of authentication: something the user <strong>knows</strong>, something the user <strong>has</strong>, something the user <strong>is</strong>, etc...<br />
+                Over the years, the one and only knowledge-based factor of "users knowing their passwords" became insufficient (and it's stunning
+                <a href="https://press.avast.com/83-of-americans-are-using-weak-passwords"
+                   target="_blank">
+                    how bad people's passwords still are
+                </a>, even today!), so a second factor was introduced: <i>something the user has</i>...<br />
+                More information can be found here too:
+                <a href="https://en.wikipedia.org/wiki/Multi-factor_authentication"
+                   target="_blank">
+                    wikipedia.org/wiki/Multi-factor_authentication
+                </a>.
+            </p>
 
-        <h2 class="accordion-header"
-            id="headingOne">
-            <button class="accordion-button collapsed"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#collapseOne"
-                    aria-expanded="false"
-                    aria-controls="collapseOne">
-                <span class="unselectable bi bi-themeable bi-file-earmark-code"
-                      aria-hidden="true">
-                </span> Software details
-            </button>
-        </h2>
+            <h4 class="mt-4">
+                Conclusion
+            </h4>
+            <p>
+                In the majority of cases, 2FA boils down to adding the requirement of a time-based token (typically a 6-digit number valid for only 30 seconds) generated by a key that only <strong>you have</strong>.<br />
+                Ideally, you'd authenticate for example a login on your desktop computer by using your smartphone (a separate device!) as your second authentication factor.<br />
+                In a worst-case scenario, hackers would need to gain access to both your desktop computer AND your smartphone to combine password + 2FA code in under 30 seconds).
+                This is much better than just having a password that can be guessed potentially unlimited times by determined attackers, don't you think? :)
+            </p>
 
-        <div id="collapseOne"
-             class="accordion-collapse collapse"
-             aria-labelledby="headingOne"
-             data-bs-parent="#accordion">
-
-            <div class="accordion-body">
-
-                <ul>
-                    <li class="mt-3">
-                        Underlying block cipher for the import/export functionality:
-                        <ul>
-                            <li>
-                                <a href="https://en.wikipedia.org/wiki/Advanced_Encryption_Standard"
-                                   target="_blank">
-                                    AES-256
-                                </a>
-                                <a href="https://en.wikipedia.org/wiki/Galois/Counter_Mode"
-                                   target="_blank">
-                                    (in Galois/Counter Mode)
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-
-                    <li class="mt-3">
-                        Used crypto library:
-                        <ul>
-                            <li>
-                                <a href="https://www.nuget.org/packages/Portable.BouncyCastle"
-                                   target="_blank">
-                                    Portable.BouncyCastle
-                                </a>
-                                <ul>
-                                    <li>
-                                        <a href="https://www.bouncycastle.org/csharp/licence.html"
-                                           target="_blank">
-                                            Free and open-source (MIT-licensed)
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </li>
-
-                    <li class="mt-3">
-                        Used TOTP library:
-                        <ul>
-                            <li>
-                                <a href="https://github.com/GlitchedPolygons/Otp.NET"
-                                   target="_blank">
-                                    Otp.NET
-                                </a>
-                                <ul>
-                                    <li>
-                                        <a href="https://github.com/GlitchedPolygons/Otp.NET/blob/master/LICENSE.txt"
-                                           target="_blank">
-                                            Free and open-source (MIT-licensed)
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </li>
-
-                    <li class="mt-3 mb-0">
-                        This site is 100% free, open-source (full source code available
-                        <a href="https://github.com/GlitchedPolygons/TFACGUI.BlazorWebApp"
-                           target="_blank">
-                            <span>here</span>
-                        </a>), static, sends no data and works entirely offline and client-side only.
-                        <ul>
-                            <li>
-                                <a href="https://github.com/GlitchedPolygons/TFACGUI.BlazorWebApp/blob/master/LICENSE"
-                                   target="_blank">
-                                    Apache-2.0 license
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
-
-    <div class="accordion-item">
-
-        <h2 class="accordion-header"
-            id="headingTwo">
-
-            <button class="accordion-button collapsed"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#collapseTwo"
-                    aria-expanded="false"
-                    aria-controls="collapseTwo">
-                <span class="unselectable bi bi-themeable bi-piggy-bank"
-                      aria-hidden="true">
-                </span> Donate
-            </button>
-
-        </h2>
-
-        <div id="collapseTwo"
-             class="accordion-collapse collapse"
-             aria-labelledby="headingTwo"
-             data-bs-parent="#accordion">
-
-            <div class="accordion-body">
-
-                <p>
-                    If you're using this tool actively and enjoy it, please consider donating to
-                    <a href="https://glitchedpolygons.com/donate"
-                       target="_blank">
-                        the company behind it
-                    </a> &nbsp; :)
-                </p>
-
-                <p>
-                    Even small amounts are heavily appreciated and help us develop more nifty little tools like this. Cheers :D
-                </p>
-
-                <a href="https://glitchedpolygons.com/donate"
-                   target="_blank"
-                   class="btn btn-success mt-2">
-                    Donate now
-                </a>
-            </div>
+            <h4 class="mt-4">
+                TL:DR;
+            </h4>
+            <p>
+                2FA is important for your security, use it everywhere you can, have a nice day and click on donate below. 🥳
+            </p>
         </div>
     </div>
 </div>
 
-<br/>
-<br/>
+<div class="accordion-item">
+
+    <h2 class="accordion-header"
+        id="headingOne">
+        <button class="accordion-button collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#collapseOne"
+                aria-expanded="false"
+                aria-controls="collapseOne">
+            <span class="unselectable bi bi-themeable bi-file-earmark-code"
+                  aria-hidden="true">
+            </span> Software details
+        </button>
+    </h2>
+
+    <div id="collapseOne"
+         class="accordion-collapse collapse"
+         aria-labelledby="headingOne"
+         data-bs-parent="#accordion">
+
+        <div class="accordion-body">
+
+            <ul>
+                <li class="mt-3">
+                    Underlying block cipher for the import/export functionality:
+                    <ul>
+                        <li>
+                            <a href="https://en.wikipedia.org/wiki/Advanced_Encryption_Standard"
+                               target="_blank">
+                                AES-256
+                            </a>
+                            <a href="https://en.wikipedia.org/wiki/Galois/Counter_Mode"
+                               target="_blank">
+                                (in Galois/Counter Mode)
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="mt-3">
+                    Used crypto library:
+                    <ul>
+                        <li>
+                            <a href="https://www.nuget.org/packages/Portable.BouncyCastle"
+                               target="_blank">
+                                Portable.BouncyCastle
+                            </a>
+                            <ul>
+                                <li>
+                                    <a href="https://www.bouncycastle.org/csharp/licence.html"
+                                       target="_blank">
+                                        Free and open-source (MIT-licensed)
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="mt-3">
+                    Used TOTP library:
+                    <ul>
+                        <li>
+                            <a href="https://github.com/GlitchedPolygons/Otp.NET"
+                               target="_blank">
+                                Otp.NET
+                            </a>
+                            <ul>
+                                <li>
+                                    <a href="https://github.com/GlitchedPolygons/Otp.NET/blob/master/LICENSE.txt"
+                                       target="_blank">
+                                        Free and open-source (MIT-licensed)
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="mt-3 mb-0">
+                    This site is 100% free, open-source (full source code available
+                    <a href="https://github.com/GlitchedPolygons/TFACGUI.BlazorWebApp"
+                       target="_blank">
+                        <span>here</span>
+                    </a>), static, sends no data and works entirely offline and client-side only.
+                    <ul>
+                        <li>
+                            <a href="https://github.com/GlitchedPolygons/TFACGUI.BlazorWebApp/blob/master/LICENSE"
+                               target="_blank">
+                                Apache-2.0 license
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="accordion-item">
+
+    <h2 class="accordion-header"
+        id="headingTwo">
+
+        <button class="accordion-button collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#collapseTwo"
+                aria-expanded="false"
+                aria-controls="collapseTwo">
+            <span class="unselectable bi bi-themeable bi-piggy-bank"
+                  aria-hidden="true">
+            </span> Donate
+        </button>
+
+    </h2>
+
+    <div id="collapseTwo"
+         class="accordion-collapse collapse"
+         aria-labelledby="headingTwo"
+         data-bs-parent="#accordion">
+
+        <div class="accordion-body">
+
+            <p>
+                If you're using this tool actively and enjoy it, please consider donating to
+                <a href="https://glitchedpolygons.com/donate"
+                   target="_blank">
+                    the company behind it
+                </a> &nbsp; :)
+            </p>
+
+            <p>
+                Even small amounts are heavily appreciated and help us develop more nifty little tools like this. Cheers :D
+            </p>
+
+            <a href="https://glitchedpolygons.com/donate"
+               target="_blank"
+               class="btn btn-success mt-2">
+                Donate now
+            </a>
+        </div>
+    </div>
+</div>
+</div>
+
+<br />
+<br />
 <div style="margin-bottom: 24px;"></div>
-
-@code {
-
-    // TODO
-
-}
