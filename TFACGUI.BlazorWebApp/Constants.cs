@@ -51,6 +51,7 @@ public static class Constants
     {
         public const string ALERT_DIALOG = "alert";
         public const string CONFIRM_DIALOG = "confirm";
+        public const string SHOW_TOAST = "ShowToast";
         public const string GET_INPUT_VALUE = "GetInputValue";
         public const string GET_INPUT_VALUE_RADIO_BOX = "GetRadioBoxValue";
         public const string SET_INPUT_VALUE = "SetInputValue";

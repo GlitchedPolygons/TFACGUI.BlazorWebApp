@@ -760,11 +760,7 @@
 
         exit:
 
-        if (success)
-        {
-            // TODO: show success dialog (or toast?) here
-        }
-        else
+        if (!success)
         {
             await JS.InvokeVoidAsync(Constants.InteropFunctionNames.ALERT_DIALOG, "ERROR: Invalid QR code format!");
         }
@@ -827,6 +823,8 @@
             });
 
             await UserDataService.SetUserData(userData);
+
+            await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SHOW_TOAST, Constants.ElementIds.REGISTER_TOTP_SUCCESSFUL);
 
             StateHasChanged();
 
