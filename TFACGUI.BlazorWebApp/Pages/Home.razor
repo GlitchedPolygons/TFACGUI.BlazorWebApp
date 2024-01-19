@@ -69,6 +69,26 @@
 
 </div>
 
+<div class="input-group mb-3"
+     style="align-items: baseline;">
+
+    <input type="text"
+           id="@Constants.ElementIds.SEARCH_FIELD"
+           @oninput="OnChangeSearchFieldValue"
+           class="form-control search-bar stretch-when-narrow"
+           placeholder="Search"
+           aria-label="Search"
+           aria-describedby="@Constants.ElementIds.CLEAR_SEARCH_FIELD_BUTTON">
+
+    <button class="btn btn-danger"
+            type="button"
+            @onclick="OnClickClearSearchField"
+            id="@Constants.ElementIds.CLEAR_SEARCH_FIELD_BUTTON">
+        Clear
+    </button>
+
+</div>
+
 <div class="@(gridView ? "btn-flex" : string.Empty)"
      style="margin: 0">
 
@@ -76,15 +96,31 @@
     {
         <p>
             <br />
-            <i>
-                This is your TFACGUI chain.<br /><br />
-                Your 2FA tokens will be displayed here, ready to be copied to your system's clipboard.<br /><br />
-                Get started now by adding a new 2FA secret to your chain with one of the two registration methods above! Cheers, stay safe and I hope you like this software :)
-            </i>
+            @if (search.NullOrEmpty())
+            {
+                <i>
+                    This is your TFACGUI chain.<br /><br />
+                    Your 2FA tokens will be displayed here, ready to be copied to your system's clipboard.<br /><br />
+                    Get started now by adding a new 2FA secret to your chain with one of the two registration methods above! Cheers, stay safe and I hope you like this software :)
+                </i>
+            }
+            else
+            {
+                <span>
+                    No results 😔
+                </span>
+            }
         </p>
     }
 
-    @foreach (TotpConfig totpConfig in userData.Chain)
+    @foreach
+    (
+        TotpConfig totpConfig in
+        // Search field implementation:
+        string.IsNullOrEmpty(search)
+            ? userData.Chain
+            : userData.Chain.Where(totpConfig => totpConfig.Name.ToLowerInvariant().Contains(search) || totpConfig.Label.ToLowerInvariant().Contains(search))
+    )
     {
         <div class="card stretch-when-narrow @(!gridView ? "mb-3" : string.Empty)"
              style="filter: brightness(@totpConfig.CardBrightnessAnimationValue); min-width: @(totpConfig.CardMinWidth);">
@@ -494,7 +530,7 @@
      role="alert"
      aria-live="assertive"
      aria-atomic="true">
-    
+
     <div class="toast-header">
 
         <strong class="me-auto">✅ 2FA Secret registered successfully</strong>
@@ -513,8 +549,8 @@
     </div>
 </div>
 
-<br/>
-<br/>
+<br />
+<br />
 <div style="margin-bottom: 24px;"></div>
 
 @code {
@@ -532,6 +568,7 @@
     private QRCodeScannerJsInterop? qrCodeScannerJsInterop;
     private Models.UserData userData = Models.UserData.Empty;
 
+    private string search = string.Empty;
     private string qrCodeScannerWidth = "90%";
 
     private readonly string manualRegistrationDescTooltip = "Manually registering a 2FA secret is useful for example if your device has no camera to scan the QR code with, or if you want more control over how the entry is going to be labelled inside your TFACGUI chain.\n\nMake sure to enter everything correctly and label everything in an easily recognizable fashion!";
@@ -643,7 +680,7 @@
         scanning = true;
 
         startScanButtonThrottle = true;
-        
+
         await JS.InvokeVoidAsync(Constants.InteropFunctionNames.BLUT_ACTIVE_ELEMENT);
     }
 
@@ -661,7 +698,7 @@
         await Task.Delay(1024);
 
         startScanButtonThrottle = false;
-        
+
         await JS.InvokeVoidAsync(Constants.InteropFunctionNames.BLUT_ACTIVE_ELEMENT);
     }
 
@@ -860,7 +897,7 @@
         await UserDataService.SetUserData(userData);
 
         edit = null;
-        
+
         await JS.InvokeVoidAsync(Constants.InteropFunctionNames.BLUT_ACTIVE_ELEMENT);
     }
 
@@ -918,7 +955,7 @@
         gridView = !gridView;
 
         await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_LOCALSTORAGE_VALUE, Constants.LocalStorageIds.GRID_VIEW, gridView);
-        
+
         await JS.InvokeVoidAsync(Constants.InteropFunctionNames.BLUT_ACTIVE_ELEMENT);
     }
 
@@ -938,6 +975,25 @@
         string totpConfigEntryName = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_INPUT_VALUE, Constants.ElementIds.EDIT_TOTP_CONFIG_ENTRY_NAME, string.Empty);
 
         editReady = totpConfigEntryName.NotNullNotEmpty();
+    }
+
+    private void OnChangeSearchFieldValue(ChangeEventArgs e)
+    {
+        search = e.Value?.ToString()?.ToLowerInvariant() ?? string.Empty;
+
+        StateHasChanged();
+    }
+
+    private async Task OnClickClearSearchField()
+    {
+        search = string.Empty;
+
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.SEARCH_FIELD, search);
+
+        OnChangeSearchFieldValue(new ChangeEventArgs { Value = search });
+
+        await Task.Delay(420);
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.BLUT_ACTIVE_ELEMENT);
     }
 
 }

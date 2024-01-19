@@ -310,3 +310,7 @@ code {
     bottom: 16px; 
     right: 16px;
 }
+
+.search-bar {
+    max-width: 420px;
+}

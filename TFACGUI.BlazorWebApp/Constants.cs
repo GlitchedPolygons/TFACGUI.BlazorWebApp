@@ -6,13 +6,14 @@ public static class Constants
 
     public static class ElementIds
     {
+        public const string SEARCH_FIELD = "searchField";
         public const string IMPORT_PW = "importPassword";
         public const string EXPORT_PW = "exportPassword";
         public const string EXPORT_PW_CONFIRMATION = "exportPasswordConfirmation";
         public const string BACKUP_ENCRYPTION_CIPHERTEXT = "encryptionCiphertext";
         public const string BACKUP_DECRYPTION_CIPHERTEXT = "decryptionCiphertext";
         public const string COPY_EXPORTED_BACKUP_BUTTON = "copyExportedBackupButton";
-
+        public const string CLEAR_SEARCH_FIELD_BUTTON = "clearSearchFieldButton";
         public const string TOP_NAVBAR = "topnavbar";
         
         public const string TOTP_SECRET = "totpSecret";
