@@ -378,10 +378,6 @@
         }
         while (!CheckEncryptionKeyStrength(key));
 
-#if DEBUG
-        Console.WriteLine($"Generated password: {key}");
-#endif
-
         await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.EXPORT_PW, key);
         await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.EXPORT_PW_CONFIRMATION, key);
 

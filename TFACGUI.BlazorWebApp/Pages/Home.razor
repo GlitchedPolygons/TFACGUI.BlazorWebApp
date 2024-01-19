@@ -61,7 +61,7 @@
 
 </div>
 
-<div class="qr-scanner">
+<div class="qr-scanner @(scanning ? string.Empty : "qr-scanner-height-correction")">
 
     <QRCodeScanner LoadingMessage=""
                    OutputMessage="No QR code detected"

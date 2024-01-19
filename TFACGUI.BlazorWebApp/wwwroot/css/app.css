@@ -293,6 +293,10 @@ code {
         display: flex;
         justify-content: center;
     }
+    
+    .qr-scanner-height-correction {
+        margin-top: -12px;
+    }
 
     .toast {
         width: 96%;
