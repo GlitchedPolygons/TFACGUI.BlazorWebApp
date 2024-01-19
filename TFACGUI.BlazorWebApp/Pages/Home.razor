@@ -621,6 +621,8 @@
         }
 
         totpConfig.CardBrightnessAnimationValue = 1.0f;
+
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.BLUT_ACTIVE_ELEMENT);
     }
 
     private async Task OnClickScanTotpSecret()
@@ -641,6 +643,8 @@
         scanning = true;
 
         startScanButtonThrottle = true;
+        
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.BLUT_ACTIVE_ELEMENT);
     }
 
     private async Task OnClickCancelScan()
@@ -657,6 +661,8 @@
         await Task.Delay(1024);
 
         startScanButtonThrottle = false;
+        
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.BLUT_ACTIVE_ELEMENT);
     }
 
     private async Task OnClickEditConfig(TotpConfig config)
@@ -856,6 +862,8 @@
         await UserDataService.SetUserData(userData);
 
         edit = null;
+        
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.BLUT_ACTIVE_ELEMENT);
     }
 
     private async Task OnClickSaveModification()
@@ -912,6 +920,8 @@
         gridView = !gridView;
 
         await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_LOCALSTORAGE_VALUE, Constants.LocalStorageIds.GRID_VIEW, gridView);
+        
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.BLUT_ACTIVE_ELEMENT);
     }
 
     private async Task CheckManualRegistrationReady()
