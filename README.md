@@ -31,3 +31,7 @@ It has a [`.webmanifest`](https://github.com/GlitchedPolygons/TFACGUI.BlazorWebA
 User data is stored in [`localStorage`](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage) but can be purged with a button click, and is only every exported out of the app's context via the export functionality, which requires you to encrypt the exported data with a password.
 
 Hope you enjoy, cheers :D
+
+### Screenshot
+
+![TFAC GUI Blazor WebAssembly](https://api.files.glitchedpolygons.com/api/v1/files/tfacgui-blazor-wasm-screenshot-01.png)
