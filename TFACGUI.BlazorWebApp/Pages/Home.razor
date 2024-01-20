@@ -572,6 +572,8 @@
     private string qrCodeScannerWidth = "90%";
 
     private readonly string manualRegistrationDescTooltip = "Manually registering a 2FA secret is useful for example if your device has no camera to scan the QR code with, or if you want more control over how the entry is going to be labelled inside your TFACGUI chain.\n\nMake sure to enter everything correctly and label everything in an easily recognizable fashion!";
+    
+    private static event Action? Looped;
 
     protected override async Task OnInitializedAsync()
     {
@@ -581,21 +583,32 @@
 
         gridView = await JS.InvokeAsync<string>(Constants.InteropFunctionNames.GET_LOCALSTORAGE_VALUE, Constants.LocalStorageIds.GRID_VIEW, "true") != "false";
 
-        for (;;)
+        bool workerApiSupported = await JS.InvokeAsync<bool>(Constants.InteropFunctionNames.IS_WORKER_AVAILABLE);
+
+        if (workerApiSupported)
         {
-            if (changedFocusedState)
+            await JS.InvokeVoidAsync(Constants.InteropFunctionNames.START_LOOP_WORKER);
+
+            Looped += OnLoopCycle;
+        }
+        else
+        {
+            for (;;)
             {
-                changedFocusedState = false;
-
-                if (focused)
+                if (changedFocusedState)
                 {
-                    userData = await UserDataService.GetUserData();
+                    changedFocusedState = false;
+
+                    if (focused)
+                    {
+                        userData = await UserDataService.GetUserData();
+                    }
                 }
+
+                StateHasChanged();
+
+                await Task.Delay(focused ? 128 : 256);
             }
-
-            StateHasChanged();
-
-            await Task.Delay(focused ? 128 : 256);
         }
     }
 
@@ -610,6 +623,34 @@
         focused = !hidden;
 
         changedFocusedState = true;
+    }
+
+    [JSInvokable]
+    public static void OnLoopCycleWorkerCallback(string eventArgs)
+    {
+#if DEBUG
+        Console.WriteLine($"Loop cycle occurred. Event args: {eventArgs}");
+#endif
+        
+        Looped?.Invoke();
+    }
+
+    private void OnLoopCycle()
+    {
+        if (changedFocusedState)
+        {
+            changedFocusedState = false;
+
+            if (focused)
+            {
+                Task.Run(async () =>
+                {
+                    userData = await UserDataService.GetUserData();
+                });
+            }
+        }
+        
+        StateHasChanged();
     }
 
     private async Task ResetManualRegistrationModalForm()

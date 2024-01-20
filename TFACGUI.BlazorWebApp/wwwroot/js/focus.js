@@ -6,5 +6,5 @@ function IsDocumentHidden()
 
 document.addEventListener("visibilitychange", () => 
 {
-    DotNet.invokeMethodAsync('TFACGUI.BlazorWebApp', 'OnChangeVisibilityState', document.hidden)
+    DotNet.invokeMethodAsync('TFACGUI.BlazorWebApp', 'OnChangeVisibilityState', document.hidden);
 });

@@ -53,6 +53,9 @@ public static class Constants
         public const string ALERT_DIALOG = "alert";
         public const string CONFIRM_DIALOG = "confirm";
         public const string SHOW_TOAST = "ShowToast";
+        public const string START_LOOP_WORKER = "StartLoopWorker";
+        public const string STOP_LOOP_WORKER = "StopLoopWorker";
+        public const string IS_WORKER_AVAILABLE = "WorkerAvailable";
         public const string GET_INPUT_VALUE = "GetInputValue";
         public const string GET_INPUT_VALUE_RADIO_BOX = "GetRadioBoxValue";
         public const string SET_INPUT_VALUE = "SetInputValue";
@@ -68,6 +71,7 @@ public static class Constants
         public const string GET_WINDOW_INNER_WIDTH = "GetWindowInnerWidth";
         public const string GET_WINDOW_INNER_HEIGHT = "GetWindowInnerHeight";
         public const string BLUT_ACTIVE_ELEMENT = "document.activeElement.blur";
+        
     }
 
     public static class AesGcm
