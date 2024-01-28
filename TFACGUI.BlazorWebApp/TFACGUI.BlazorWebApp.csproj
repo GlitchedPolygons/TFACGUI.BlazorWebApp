@@ -5,8 +5,8 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <Company>Glitched Polygons</Company>
-        <AssemblyVersion>1.0.1</AssemblyVersion>
-        <FileVersion>1.0.1</FileVersion>
+        <AssemblyVersion>1.0.2</AssemblyVersion>
+        <FileVersion>1.0.2</FileVersion>
         <ApplicationIcon>wwwroot\favicon.ico</ApplicationIcon>
         <!-- The following two are necessary until Microsoft fixes https://github.com/dotnet/runtime/issues/90710 -->
         <RunAOTCompilation>false</RunAOTCompilation>
