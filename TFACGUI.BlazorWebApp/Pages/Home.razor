@@ -889,7 +889,7 @@
     {
         try
         {
-            userData.Chain.Add(new TotpConfig
+            TotpConfig addendum = new()
             {
                 Name = name,
                 Algorithm = algorithm,
@@ -898,7 +898,15 @@
                 IssuedTo = issuedTo.NullOrEmpty() ? string.Empty : issuedTo,
                 Digits = int.TryParse(digits, out int totpDigitsInt) ? totpDigitsInt : TotpConfig.Empty.Digits,
                 Period = int.TryParse(period, out int totpPeriodInt) ? totpPeriodInt : TotpConfig.Empty.Period,
-            });
+            };
+
+            if (userData.Chain.Any(c => c.Id == addendum.Id))
+            {
+                await JS.InvokeVoidAsync(Constants.InteropFunctionNames.ALERT_DIALOG, "This 2FA config entry already exists in your TFACGUI chain.");
+                return true;
+            }
+            
+            userData.Chain.Add(addendum);
 
             await UserDataService.SetUserData(userData);
 
