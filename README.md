@@ -35,3 +35,7 @@ Hope you enjoy, cheers :D
 ### Screenshot
 
 ![TFAC GUI Blazor WebAssembly](https://api.files.glitchedpolygons.com/api/v1/files/tfacgui-blazor-wasm-screenshot-01.png)
+
+### Download installer
+
+Want an .MSI? [Download the installer](https://files.glitchedpolygons.com/api/v1/files/tfacgui-qt-webwrapper-win-x64.msi) now and use it as a standalone desktop application instead of relying on your browser of choice.
