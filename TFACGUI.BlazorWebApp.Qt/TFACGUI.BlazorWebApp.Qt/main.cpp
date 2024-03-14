@@ -26,6 +26,7 @@ int main(int argc, char** argv)
     QWebEngineProfile profile(PROFILE_NAME);
 
     profile.settings()->setAttribute(QWebEngineSettings::LocalStorageEnabled, true);
+    profile.settings()->setAttribute(QWebEngineSettings::JavascriptCanAccessClipboard, true);
     profile.setPersistentStoragePath(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation));
 
     QWebEnginePage page(&profile);
