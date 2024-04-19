@@ -141,6 +141,12 @@ public class TotpConfig
             return totpInstance!.ComputeTotp();
         }
     }
+    
+    /// <summary>
+    /// Whether the TOTP is in the copied state.
+    /// </summary>
+    [JsonIgnore]
+    public bool Copied { get; set; }
 
     /// <summary>
     /// The current TOTP computed by this <see cref="TotpConfig"/>'s 2FA secret and algo parameters, nicely formatted and all.
@@ -151,6 +157,11 @@ public class TotpConfig
         get
         {
             EnsureTotpInstanceExists();
+
+            if (Copied)
+            {
+                return "\u2705Copied...";
+            }
 
             try
             {

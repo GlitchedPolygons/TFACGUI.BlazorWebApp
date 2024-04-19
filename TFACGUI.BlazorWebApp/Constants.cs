@@ -70,7 +70,7 @@ public static class Constants
         public const string IS_DOCUMENT_HIDDEN = "IsDocumentHidden";
         public const string GET_WINDOW_INNER_WIDTH = "GetWindowInnerWidth";
         public const string GET_WINDOW_INNER_HEIGHT = "GetWindowInnerHeight";
-        public const string BLUT_ACTIVE_ELEMENT = "document.activeElement.blur";
+        public const string BLUR_ACTIVE_ELEMENT = "document.activeElement.blur";
         
     }
 

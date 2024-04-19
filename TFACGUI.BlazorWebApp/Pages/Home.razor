@@ -685,22 +685,27 @@
     {
         await JS.InvokeVoidAsync(Constants.InteropFunctionNames.COPY_TO_CLIPBOARD, totpConfig.TotpRaw);
 
-        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.PRESS_COPY_BUTTON_PORTABLE, totpConfig.Id, "\u2705Copied...", totpConfig.Totp);
-
-        totpConfig.CardBrightnessAnimationValue = 1.5f;
+        totpConfig.Copied = true;
+        
+        totpConfig.CardBrightnessAnimationValue = 1.75f;
 
         while (totpConfig.CardBrightnessAnimationValue > 1.0f)
         {
             totpConfig.CardBrightnessAnimationValue -= 0.0275f;
 
-            await Task.Delay(32);
+            await Task.Delay(16);
 
             StateHasChanged();
         }
 
+        totpConfig.Copied = false;
+        
         totpConfig.CardBrightnessAnimationValue = 1.0f;
+        
+        StateHasChanged();
 
-        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.BLUT_ACTIVE_ELEMENT);
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.BLUR_ACTIVE_ELEMENT);
+        
     }
 
     private async Task OnClickScanTotpSecret()
@@ -722,7 +727,7 @@
 
         startScanButtonThrottle = true;
 
-        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.BLUT_ACTIVE_ELEMENT);
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.BLUR_ACTIVE_ELEMENT);
     }
 
     private async Task OnClickCancelScan()
@@ -740,7 +745,7 @@
 
         startScanButtonThrottle = false;
 
-        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.BLUT_ACTIVE_ELEMENT);
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.BLUR_ACTIVE_ELEMENT);
     }
 
     private async Task OnClickEditConfig(TotpConfig config)
@@ -947,7 +952,7 @@
 
         edit = null;
 
-        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.BLUT_ACTIVE_ELEMENT);
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.BLUR_ACTIVE_ELEMENT);
     }
 
     private async Task OnClickSaveModification()
@@ -1005,7 +1010,7 @@
 
         await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_LOCALSTORAGE_VALUE, Constants.LocalStorageIds.GRID_VIEW, gridView);
 
-        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.BLUT_ACTIVE_ELEMENT);
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.BLUR_ACTIVE_ELEMENT);
     }
 
     private async Task CheckManualRegistrationReady()
@@ -1042,7 +1047,7 @@
         OnChangeSearchFieldValue(new ChangeEventArgs { Value = search });
 
         await Task.Delay(420);
-        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.BLUT_ACTIVE_ELEMENT);
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.BLUR_ACTIVE_ELEMENT);
     }
 
 }
