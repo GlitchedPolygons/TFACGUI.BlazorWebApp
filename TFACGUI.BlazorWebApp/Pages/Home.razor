@@ -610,6 +610,8 @@
                 await Task.Delay(focused ? 128 : 256);
             }
         }
+        
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.FOCUS_SEARCH_FIELD);
     }
 
     [JSInvokable]
@@ -1046,8 +1048,9 @@
 
         OnChangeSearchFieldValue(new ChangeEventArgs { Value = search });
 
-        await Task.Delay(420);
+        await Task.Delay(42);
         await JS.InvokeVoidAsync(Constants.InteropFunctionNames.BLUR_ACTIVE_ELEMENT);
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.FOCUS_SEARCH_FIELD);
     }
 
 }

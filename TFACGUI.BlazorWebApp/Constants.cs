@@ -71,6 +71,7 @@ public static class Constants
         public const string GET_WINDOW_INNER_WIDTH = "GetWindowInnerWidth";
         public const string GET_WINDOW_INNER_HEIGHT = "GetWindowInnerHeight";
         public const string BLUR_ACTIVE_ELEMENT = "document.activeElement.blur";
+        public const string FOCUS_SEARCH_FIELD = "FocusSearchField";
         
     }
 
