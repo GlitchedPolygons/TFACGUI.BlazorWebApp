@@ -1,0 +1,285 @@
+﻿@page "/scratchpad"
+
+@inject IJSRuntime JS
+
+@using GlitchedPolygons.ExtensionMethods
+@using OtpNet
+@using TFACGUI.BlazorWebApp.Models
+
+<PageTitle>
+    TFACGUI - Scratchpad
+</PageTitle>
+
+<h1>
+    Scratchpad
+</h1>
+
+<br/>
+<p>
+    When you just wanna generate a quick 2FA token without storing anything.
+</p>
+
+<div class="form-group"
+     style="max-width: 512px;">
+
+    <label for="@Constants.ElementIds.TOTP_SECRET"
+           class="form-label mt-2">
+        2FA Secret
+    </label>
+
+    <input type="password"
+           class="form-control"
+           id="@Constants.ElementIds.TOTP_SECRET"
+           placeholder="@Constants.Placeholders.TOTP_SECRET_PLACEHOLDER"
+           @oninput="OnSetTotpSecret"
+           onClick="this.select();"
+           autocomplete="off">
+</div>
+
+<fieldset class="form-group"
+          style="max-width: 512px;">
+
+    <label class="form-label mt-2"
+           id="@Constants.ElementIds.TOTP_DIGITS_SLIDER_LABEL"
+           for="@Constants.ElementIds.TOTP_DIGITS_SLIDER">
+        Digits: @TotpConfig.Empty.Digits
+    </label>
+
+    <input type="range"
+           class="form-range"
+           min="1"
+           max="10"
+           step="1.0"
+           value="6"
+           @oninput="OnMoveDigitSlider"
+           id="@Constants.ElementIds.TOTP_DIGITS_SLIDER">
+</fieldset>
+
+<fieldset class="form-group"
+          style="max-width: 512px;">
+
+    <label class="form-label mt-2"
+           id="@Constants.ElementIds.TOTP_INTERVAL_SLIDER_LABEL"
+           for="@Constants.ElementIds.TOTP_INTERVAL_SLIDER">
+        Interval: @TotpConfig.Empty.Period seconds
+    </label>
+
+    <input type="range"
+           class="form-range"
+           min="1"
+           max="60"
+           step="1.0"
+           value="30"
+           @oninput="OnMoveIntervalSlider"
+           id="@Constants.ElementIds.TOTP_INTERVAL_SLIDER">
+</fieldset>
+
+<fieldset class="form-group"
+          style="max-width: 512px;">
+
+    <label class="form-label mt-2">
+        Algorithm
+    </label>
+
+    <div class="form-check">
+
+        <input class="form-check-input"
+               type="radio"
+               @oninput="OnSetAlgorithm"
+               name="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX"
+               id="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX_BUTTON_SHA1"
+               value="@OtpHashMode.Sha1"
+               checked>
+
+        <label class="form-check-label"
+               for="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX_BUTTON_SHA1">
+            SHA-1 (default)
+        </label>
+    </div>
+
+    <div class="form-check">
+
+        <input class="form-check-input"
+               type="radio"
+               @oninput="OnSetAlgorithm"
+               name="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX"
+               id="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX_BUTTON_SHA256"
+               value="@OtpHashMode.Sha256">
+
+        <label class="form-check-label"
+               for="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX_BUTTON_SHA256">
+            SHA-256
+        </label>
+    </div>
+
+    <div class="form-check">
+
+        <input class="form-check-input"
+               type="radio"
+               @oninput="OnSetAlgorithm"
+               name="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX"
+               id="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX_BUTTON_SHA512"
+               value="@OtpHashMode.Sha512">
+
+        <label class="form-check-label"
+               for="@Constants.ElementIds.TOTP_ALGO_RADIO_BOX_BUTTON_SHA512">
+            SHA-512
+        </label>
+    </div>
+</fieldset>
+
+<br/>
+
+<div class="card stretch-when-narrow"
+     hidden="@totpSecret.NullOrEmpty()"
+     style="filter: brightness(@totpConfig.CardBrightnessAnimationValue); min-width: @(totpConfig.CardMinWidth);">
+
+    <div class="card-body">
+
+        <p class="card-text">
+
+            <code class="totp-code unselectable"
+                  id="@totpConfig.Id"
+                  style="cursor: pointer;"
+                  @onclick="OnClickCopyTOTP">
+                @totpConfig.Totp
+            </code>
+
+        </p>
+
+        <div class="progress">
+
+            <div
+                class="progress-bar @(totpConfig.RemainingSeconds < 4 ? "bg-danger" : totpConfig.RemainingSeconds < 8 ? "bg-warning" : string.Empty)"
+                role="progressbar"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow="@totpConfig.RemainingLifetimePercentage"
+                style="width: @(totpConfig.RemainingLifetimePercentage)%; transition-duration: @(totpConfig.RemainingSeconds < 0.25d || totpConfig.RemainingSeconds > ((double)totpConfig.Period - 0.25d) ? "0.00s" : "0.25s");">
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<br/>
+<br/>
+<div style="margin-bottom: 24px;"></div>
+
+@code
+{
+    private string totpSecret = string.Empty;
+
+    private int digits = 6;
+
+    private int period = 30;
+
+    private OtpHashMode algorithm = OtpHashMode.Sha1;
+
+    private TotpConfig totpConfig;
+
+    protected override async Task OnInitializedAsync()
+    {
+        totpConfig = new()
+        {
+            Digits = digits,
+            Period = period,
+            Algorithm = algorithm,
+            TotpSecretKey = totpSecret.NullOrEmpty() ? "CZKIPH4HPYMD4KFX" : totpSecret,
+        };
+
+        StateHasChanged();
+
+        for (;;)
+        {
+            StateHasChanged();
+
+            await Task.Delay(128);
+        }
+    }
+
+    private void Refresh()
+    {
+        if (totpSecret.NullOrEmpty())
+        {
+            return;
+        }
+
+        totpConfig = new()
+        {
+            Digits = digits,
+            Period = period,
+            Algorithm = algorithm,
+            TotpSecretKey = totpSecret.Replace(" ", string.Empty),
+        };
+
+        StateHasChanged();
+    }
+
+    private void OnSetTotpSecret(ChangeEventArgs e)
+    {
+        totpSecret = e.Value?.ToString() ?? string.Empty;
+
+        if (totpSecret.NullOrEmpty())
+        {
+            totpSecret = "CZKIPH4HPYMD4KFX";
+        }
+        
+        Refresh();
+    }
+
+    private void OnSetAlgorithm(ChangeEventArgs e)
+    {
+        algorithm = Enum.TryParse<OtpHashMode>(e.Value?.ToString(), out OtpHashMode otpHashMode) ? otpHashMode : OtpHashMode.Sha1;
+
+        Refresh();
+    }
+
+    private async Task OnMoveDigitSlider(ChangeEventArgs e)
+    {
+        digits = int.Parse(e.Value?.ToString() ?? "6");
+        
+        string label = $"Digits: {e.Value}{(e.Value is 6 or "6" ? " (default)" : string.Empty)}";
+
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.TOTP_DIGITS_SLIDER_LABEL, label, true);
+
+        Refresh();
+    }
+
+    private async Task OnMoveIntervalSlider(ChangeEventArgs e)
+    {
+        period = int.Parse(e.Value?.ToString() ?? "30");
+        
+        string label = $"Interval: {e.Value} second{(e.Value is 1 or "1" ? string.Empty : "s")}{(e.Value is 30 or "30" ? " (default)" : string.Empty)}";
+
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.SET_INPUT_VALUE, Constants.ElementIds.TOTP_INTERVAL_SLIDER_LABEL, label, true);
+
+        Refresh();
+    }
+
+    private async Task OnClickCopyTOTP()
+    {
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.COPY_TO_CLIPBOARD, totpConfig.TotpRaw);
+
+        totpConfig.Copied = true;
+
+        totpConfig.CardBrightnessAnimationValue = 1.75f;
+
+        while (totpConfig.CardBrightnessAnimationValue > 1.0f)
+        {
+            totpConfig.CardBrightnessAnimationValue -= 0.0275f;
+
+            await Task.Delay(16);
+
+            StateHasChanged();
+        }
+
+        totpConfig.Copied = false;
+
+        totpConfig.CardBrightnessAnimationValue = 1.0f;
+
+        StateHasChanged();
+
+        await JS.InvokeVoidAsync(Constants.InteropFunctionNames.BLUR_ACTIVE_ELEMENT);
+    }
+}

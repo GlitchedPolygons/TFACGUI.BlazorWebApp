@@ -5,8 +5,8 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <Company>Glitched Polygons</Company>
-        <AssemblyVersion>1.0.4</AssemblyVersion>
-        <FileVersion>1.0.4</FileVersion>
+        <AssemblyVersion>1.1.0</AssemblyVersion>
+        <FileVersion>1.1.0</FileVersion>
         <ApplicationIcon>wwwroot\favicon.ico</ApplicationIcon>
         <!-- The following two are necessary until Microsoft fixes https://github.com/dotnet/runtime/issues/90710 -->
         <RunAOTCompilation>false</RunAOTCompilation>
@@ -14,9 +14,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="BouncyCastle.Cryptography" Version="2.3.1" />
+        <PackageReference Include="BouncyCastle.Cryptography" Version="2.5.1" />
         <PackageReference Include="Otp.NET" Version="1.4.0" />
-        <PackageReference Include="GlitchedPolygons.ExtensionMethods" Version="1.3.0" />
+        <PackageReference Include="GlitchedPolygons.ExtensionMethods" Version="1.4.0" />
         <PackageReference Include="GlitchedPolygons.Utilities.RandomStringGenerator" Version="1.0.0" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.0"/>
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.0" PrivateAssets="all"/>
