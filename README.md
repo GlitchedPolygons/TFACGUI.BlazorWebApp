@@ -34,7 +34,7 @@ Hope you enjoy, cheers :D
 
 ### Screenshot
 
-![TFAC GUI Blazor WebAssembly](https://api.files.glitchedpolygons.com/api/v1/files/tfacgui-blazor-wasm-screenshot-01.png)
+![TFAC GUI Blazor WebAssembly](https://api-files.glitchedpolygons.com/api/v1/files/tfacgui-blazor-wasm-screenshot-01.png)
 
 ### Download installer
 
